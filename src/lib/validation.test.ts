@@ -27,21 +27,73 @@ describe('usedByYear', () => {
 
 describe('balanceFor', () => {
   it('subtracts booked days from the allowance', () => {
-    expect(balanceFor(2026, [booked('a', '2026-03-16', '2026-03-20')], allowances)).toStrictEqual({
+    expect(
+      balanceFor(2026, [booked('a', '2026-03-16', '2026-03-20')], allowances, 2026)
+    ).toStrictEqual({
       year: 2026,
       used: 5,
+      carriedOver: 0,
       granted: 21,
       remaining: 16,
     })
   })
 
   it('reports no allowance set for the year', () => {
-    expect(balanceFor(2027, [], allowances)).toStrictEqual({
+    expect(balanceFor(2027, [], allowances, 2026)).toStrictEqual({
       year: 2027,
       used: 0,
+      carriedOver: 0,
       granted: null,
       remaining: null,
     })
+  })
+})
+
+describe('balanceFor carry over', () => {
+  const twoYears = new Map([
+    [2025, 20],
+    [2026, 21],
+  ])
+
+  it('rolls days left over from a finished year into the next one', () => {
+    // 5 of the 20 days granted for 2025 were used, so 15 carry over.
+    const balance = balanceFor(2026, [booked('a', '2025-03-17', '2025-03-21')], twoYears, 2026)
+    expect(balance).toStrictEqual({
+      year: 2026,
+      used: 0,
+      carriedOver: 15,
+      granted: 21,
+      remaining: 36,
+    })
+  })
+
+  it('chains the carry over through several finished years', () => {
+    const threeYears = new Map([
+      [2024, 20],
+      [2025, 20],
+      [2026, 21],
+    ])
+    expect(balanceFor(2026, [], threeYears, 2026).carriedOver).toBe(40)
+  })
+
+  it('never carries a negative balance forward', () => {
+    // A year with no allowance set but days booked must not create a debt.
+    const balance = balanceFor(
+      2026,
+      [booked('a', '2025-03-17', '2025-03-21')],
+      new Map([[2026, 21]]),
+      2026
+    )
+    expect(balance.carriedOver).toBe(0)
+  })
+
+  it('carries nothing forward from a year that is still running', () => {
+    // Standing in 2025, the days left in 2025 are not yet known to be unused.
+    expect(balanceFor(2026, [], twoYears, 2025).carriedOver).toBe(0)
+  })
+
+  it('gives a past year only what came before it', () => {
+    expect(balanceFor(2025, [], twoYears, 2026).carriedOver).toBe(0)
   })
 })
 
@@ -52,6 +104,7 @@ describe('checkRequest', () => {
       end: '2026-03-20',
       existing: [],
       allowances,
+      currentYear: 2026,
     })
     expect(check).toStrictEqual({ ok: true, workingDays: 5, charges: new Map([[2026, 5]]) })
   })
@@ -62,6 +115,7 @@ describe('checkRequest', () => {
       end: '2026-03-16',
       existing: [],
       allowances,
+      currentYear: 2026,
     })
     expect(check).toMatchObject({ ok: false })
     expect(check).toHaveProperty('message', expect.stringContaining('end date'))
@@ -73,6 +127,7 @@ describe('checkRequest', () => {
       end: '2026-04-13',
       existing: [],
       allowances,
+      currentYear: 2026,
     })
     expect(check).toMatchObject({ ok: false })
     expect(check).toHaveProperty('message', expect.stringContaining('no working days'))
@@ -84,6 +139,7 @@ describe('checkRequest', () => {
       end: '2026-03-25',
       existing: [booked('a', '2026-03-16', '2026-03-20')],
       allowances,
+      currentYear: 2026,
     })
     expect(check).toMatchObject({ ok: false })
     expect(check).toHaveProperty('message', expect.stringContaining('16.03.2026 - 20.03.2026'))
@@ -95,6 +151,7 @@ describe('checkRequest', () => {
       end: '2026-03-19',
       existing: [booked('a', '2026-03-16', '2026-03-20')],
       allowances,
+      currentYear: 2026,
       excludeId: 'a',
     })
     expect(check).toMatchObject({ ok: true, workingDays: 4 })
@@ -106,6 +163,7 @@ describe('checkRequest', () => {
       end: '2026-06-30',
       existing: [booked('a', '2026-06-01', '2026-06-30')],
       allowances: new Map([[2026, 21]]),
+      currentYear: 2026,
       excludeId: 'a',
     })
     expect(check).toMatchObject({ ok: true })
@@ -117,9 +175,10 @@ describe('checkRequest', () => {
       end: '2026-07-31',
       existing: [],
       allowances,
+      currentYear: 2026,
     })
     expect(check).toMatchObject({ ok: false })
-    expect(check).toHaveProperty('message', expect.stringContaining('of 21 remain'))
+    expect(check).toHaveProperty('message', expect.stringContaining('only 21 remain'))
   })
 
   it('counts days already booked against the balance', () => {
@@ -129,9 +188,10 @@ describe('checkRequest', () => {
       end: '2026-03-18',
       existing,
       allowances,
+      currentYear: 2026,
     })
     expect(check).toMatchObject({ ok: false })
-    expect(check).toHaveProperty('message', expect.stringContaining('only 1 of 21 remain'))
+    expect(check).toHaveProperty('message', expect.stringContaining('only 1 remain'))
   })
 
   it('rejects a year that has no allowance', () => {
@@ -140,9 +200,40 @@ describe('checkRequest', () => {
       end: '2027-03-19',
       existing: [],
       allowances,
+      currentYear: 2026,
     })
     expect(check).toMatchObject({ ok: false })
     expect(check).toHaveProperty('message', expect.stringContaining('2027'))
+  })
+
+  it('lets carried over days pay for a request the year alone could not', () => {
+    const check = checkRequest({
+      start: '2026-06-01',
+      end: '2026-07-10',
+      existing: [],
+      allowances: new Map([
+        [2025, 20],
+        [2026, 21],
+      ]),
+      currentYear: 2026,
+    })
+    // 29 working days, more than the 21 granted for 2026 but within 21 + 20 carried over.
+    expect(check).toMatchObject({ ok: true, workingDays: 29 })
+  })
+
+  it('mentions the carry over when the balance still falls short', () => {
+    const check = checkRequest({
+      start: '2026-01-05',
+      end: '2026-12-31',
+      existing: [],
+      allowances: new Map([
+        [2025, 20],
+        [2026, 21],
+      ]),
+      currentYear: 2026,
+    })
+    expect(check).toMatchObject({ ok: false })
+    expect(check).toHaveProperty('message', expect.stringContaining('20 carried over'))
   })
 
   it('checks each year of a request crossing New Year separately', () => {
@@ -154,6 +245,7 @@ describe('checkRequest', () => {
         [2026, 21],
         [2027, 2],
       ]),
+      currentYear: 2026,
     })
     expect(check).toMatchObject({ ok: false })
     expect(check).toHaveProperty('message', expect.stringContaining('3 day(s) from 2027'))

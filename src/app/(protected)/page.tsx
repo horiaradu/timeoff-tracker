@@ -14,7 +14,7 @@ export default async function DashboardPage() {
   ])
 
   const year = yearOf(today())
-  const balance = balanceFor(year, timeoffs, allowances)
+  const balance = balanceFor(year, timeoffs, allowances, year)
   const canPrint = Boolean(profile?.signaturePng)
 
   return (
@@ -33,7 +33,9 @@ export default async function DashboardPage() {
           ) : (
             <p className="mt-1 text-sm text-black/60 dark:text-white/60">
               <span className="font-semibold text-black dark:text-white">{balance.remaining}</span>{' '}
-              of {balance.granted} days remaining in {year} &middot; {balance.used} used
+              days remaining in {year} &middot; {balance.granted} granted
+              {balance.carriedOver > 0 && ` + ${balance.carriedOver} carried over`} &middot;{' '}
+              {balance.used} used
             </p>
           )}
         </div>

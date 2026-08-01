@@ -78,6 +78,19 @@ export function today(): DateOnly {
   return makeDate(now.getFullYear(), now.getMonth() + 1, now.getDate())
 }
 
+/**
+ * Bridges to calendar widgets that speak `Date`. Both directions use the local
+ * midnight of the day, so a date survives the round trip in any timezone.
+ */
+export function toLocalDate(date: DateOnly): Date {
+  const [year, month, day] = date.split('-').map(Number)
+  return new Date(year, month - 1, day)
+}
+
+export function fromLocalDate(date: Date): DateOnly {
+  return makeDate(date.getFullYear(), date.getMonth() + 1, date.getDate())
+}
+
 /** The `dd.MM.yyyy` form used across the UI and in the generated request. */
 export function formatRomanian(date: DateOnly): string {
   const [y, m, d] = date.split('-')

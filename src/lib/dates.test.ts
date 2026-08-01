@@ -5,9 +5,11 @@ import {
   daysInMonth,
   eachDay,
   formatRomanian,
+  fromLocalDate,
   isDateOnly,
   isWeekend,
   makeDate,
+  toLocalDate,
   weekday,
   year,
 } from './dates'
@@ -93,6 +95,21 @@ describe('daysInMonth', () => {
     expect(daysInMonth(2028, 2)).toBe(29)
     expect(daysInMonth(2026, 4)).toBe(30)
     expect(daysInMonth(2026, 12)).toBe(31)
+  })
+})
+
+describe('Date bridging', () => {
+  it('survives a round trip through a Date object', () => {
+    for (const date of ['2026-01-01', '2026-03-29', '2026-10-25', '2026-12-31', '2028-02-29']) {
+      expect(fromLocalDate(toLocalDate(date)), date).toBe(date)
+    }
+  })
+
+  it('keeps the calendar day rather than an instant', () => {
+    const date = toLocalDate('2026-04-12')
+    expect(date.getFullYear()).toBe(2026)
+    expect(date.getMonth()).toBe(3)
+    expect(date.getDate()).toBe(12)
   })
 })
 

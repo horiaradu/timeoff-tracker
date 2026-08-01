@@ -6,6 +6,8 @@ import type { FormState } from '@/actions/state'
 import { isDateOnly, type DateOnly } from '@/lib/dates'
 import { balanceFor, type Period } from '@/lib/validation'
 import { chargesByYear, holidaysInRange, workingDays } from '@/lib/workdays'
+import { DateField } from './DateField'
+import { PeriodCalendar } from './PeriodCalendar'
 
 type Props = {
   action: (state: FormState, formData: FormData) => Promise<FormState>
@@ -13,81 +15,79 @@ type Props = {
   existing: Period[]
   allowances: [number, number][]
   initial: { id?: string; startDate: DateOnly; endDate: DateOnly; requestDate: DateOnly }
+  currentYear: number
   submitLabel: string
 }
 
-const field =
-  'w-full rounded-lg border border-black/15 bg-transparent px-3 py-2 text-sm outline-none focus:border-black/40 dark:border-white/20 dark:focus:border-white/50'
-
-export function TimeoffForm({ action, existing, allowances, initial, submitLabel }: Props) {
+export function TimeoffForm({
+  action,
+  existing,
+  allowances,
+  initial,
+  currentYear,
+  submitLabel,
+}: Props) {
   const [state, submit, pending] = useActionState(action, {})
   const [start, setStart] = useState(initial.startDate)
   const [end, setEnd] = useState(initial.endDate)
+  const [requestDate, setRequestDate] = useState(initial.requestDate)
 
-  const summary = summarise(start, end, existing, new Map(allowances), initial.id)
+  const others = existing.filter((period) => period.id !== initial.id)
+  const summary = summarise(start, end, others, new Map(allowances), currentYear)
 
   return (
-    <form action={submit} className="max-w-lg space-y-6">
+    <form action={submit} className="space-y-6">
       {initial.id && <input type="hidden" name="id" value={initial.id} />}
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="block">
-          <span className="mb-1.5 block text-sm font-medium">First day</span>
-          <input
-            type="date"
-            name="startDate"
-            required
-            value={start}
-            onChange={(event) => {
-              setStart(event.target.value)
-              if (event.target.value > end) setEnd(event.target.value)
-            }}
-            className={field}
-          />
-        </label>
-
-        <label className="block">
-          <span className="mb-1.5 block text-sm font-medium">Last day</span>
-          <input
-            type="date"
-            name="endDate"
-            required
-            min={start}
-            value={end}
-            onChange={(event) => setEnd(event.target.value)}
-            className={field}
-          />
-        </label>
+      <div className="grid max-w-lg gap-4 sm:grid-cols-2">
+        <DateField
+          name="startDate"
+          label="First day"
+          value={start}
+          onChange={(picked) => {
+            setStart(picked)
+            if (picked > end) setEnd(picked)
+          }}
+        />
+        <DateField name="endDate" label="Last day" value={end} min={start} onChange={setEnd} />
       </div>
 
-      <label className="block sm:w-1/2 sm:pr-2">
-        <span className="mb-1.5 block text-sm font-medium">Request date</span>
-        <input
-          type="date"
+      <PeriodCalendar
+        start={start}
+        end={end}
+        booked={others}
+        onChange={(from, to) => {
+          setStart(from)
+          setEnd(to)
+        }}
+      />
+
+      <div className="max-w-xs">
+        <DateField
           name="requestDate"
-          required
-          defaultValue={initial.requestDate}
-          className={field}
+          label="Request date"
+          value={requestDate}
+          onChange={setRequestDate}
+          hint="Printed as &ldquo;Data&rdquo; on the request."
         />
-        <span className="mt-1.5 block text-xs text-black/50 dark:text-white/50">
-          Printed as &ldquo;Data&rdquo; on the request.
-        </span>
-      </label>
+      </div>
 
       {summary && (
-        <div className="rounded-lg border border-black/10 px-4 py-3 text-sm dark:border-white/15">
+        <div className="max-w-lg rounded-lg border border-black/10 px-4 py-3 text-sm dark:border-white/15">
           <p>
             Uses <span className="font-semibold">{summary.days}</span> working{' '}
             {summary.days === 1 ? 'day' : 'days'}.
           </p>
-          {summary.perYear.map(({ year, charge, remaining, granted }) => (
+          {summary.perYear.map(({ year, charge, balance }) => (
             <p key={year} className="mt-1 text-black/60 dark:text-white/60">
-              {granted === null ? (
+              {balance.remaining === null ? (
                 <>No allowance set for {year}.</>
               ) : (
                 <>
-                  {year}: {charge} of {remaining} remaining {remaining === 1 ? 'day' : 'days'}
-                  {remaining - charge >= 0 && <> &rarr; {remaining - charge} left afterwards</>}
+                  {year}: {charge} of {balance.remaining} available
+                  {balance.carriedOver > 0 && <> ({balance.carriedOver} carried over)</>}
+                  {' → '}
+                  {balance.remaining - charge} left afterwards
                 </>
               )}
             </p>
@@ -103,7 +103,7 @@ export function TimeoffForm({ action, existing, allowances, initial, submitLabel
       {state.error && (
         <p
           role="alert"
-          className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-950 dark:text-red-300"
+          className="max-w-lg rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-950 dark:text-red-300"
         >
           {state.error}
         </p>
@@ -129,20 +129,19 @@ export function TimeoffForm({ action, existing, allowances, initial, submitLabel
 function summarise(
   start: string,
   end: string,
-  existing: Period[],
+  others: Period[],
   allowances: Map<number, number>,
-  excludeId?: string
+  currentYear: number
 ) {
   if (!isDateOnly(start) || !isDateOnly(end) || start > end) return null
-
-  const others = existing.filter((period) => period.id !== excludeId)
 
   return {
     days: workingDays(start, end),
     holidays: holidaysInRange(start, end),
-    perYear: [...chargesByYear(start, end)].map(([year, charge]) => {
-      const { granted, remaining } = balanceFor(year, others, allowances)
-      return { year, charge, granted, remaining: remaining ?? 0 }
-    }),
+    perYear: [...chargesByYear(start, end)].map(([year, charge]) => ({
+      year,
+      charge,
+      balance: balanceFor(year, others, allowances, currentYear),
+    })),
   }
 }

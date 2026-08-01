@@ -3,7 +3,7 @@ import { ProfileForm } from '@/components/ProfileForm'
 import { findProfile, listAllowances, listTimeoffs } from '@/db/queries'
 import { today, year as yearOf } from '@/lib/dates'
 import { requireUserId } from '@/lib/session'
-import { usedByYear } from '@/lib/validation'
+import { balanceFor } from '@/lib/validation'
 
 export default async function SettingsPage() {
   const userId = await requireUserId()
@@ -13,8 +13,8 @@ export default async function SettingsPage() {
     listTimeoffs(userId),
   ])
 
-  const used = usedByYear(timeoffs)
   const currentYear = yearOf(today())
+  const granted = new Map(allowances.map((row) => [row.year, row.days]))
   const highest = allowances.reduce((max, row) => Math.max(max, row.year), currentYear - 1)
 
   return (
@@ -38,14 +38,18 @@ export default async function SettingsPage() {
         </div>
 
         <div className="space-y-4">
-          {allowances.map((allowance) => (
-            <div key={allowance.id} className="flex flex-wrap items-end gap-4">
-              <AllowanceForm year={allowance.year} days={allowance.days} />
-              <span className="pb-2 text-sm text-black/50 dark:text-white/50">
-                {used.get(allowance.year) ?? 0} used
-              </span>
-            </div>
-          ))}
+          {allowances.map((allowance) => {
+            const balance = balanceFor(allowance.year, timeoffs, granted, currentYear)
+            return (
+              <div key={allowance.id} className="flex flex-wrap items-end gap-4">
+                <AllowanceForm year={allowance.year} days={allowance.days} />
+                <span className="pb-2 text-sm text-black/50 dark:text-white/50">
+                  {balance.carriedOver > 0 && `+${balance.carriedOver} carried over · `}
+                  {balance.used} used · {balance.remaining} left
+                </span>
+              </div>
+            )
+          })}
 
           <div className="border-t border-black/10 pt-4 dark:border-white/15">
             <AllowanceForm year={Math.max(highest + 1, currentYear)} editableYear />

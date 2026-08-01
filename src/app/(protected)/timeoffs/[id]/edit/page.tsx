@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import { updateTimeoff } from '@/actions/timeoffs'
 import { TimeoffForm } from '@/components/TimeoffForm'
 import { allowancesByYear, findTimeoff, listTimeoffs } from '@/db/queries'
+import { today, year as yearOf } from '@/lib/dates'
 import { requireUserId } from '@/lib/session'
 
 export default async function EditTimeoffPage({ params }: { params: Promise<{ id: string }> }) {
@@ -29,6 +30,7 @@ export default async function EditTimeoffPage({ params }: { params: Promise<{ id
           endDate: timeoff.endDate,
           requestDate: timeoff.requestDate,
         }}
+        currentYear={yearOf(today())}
         submitLabel="Save changes"
       />
     </div>
