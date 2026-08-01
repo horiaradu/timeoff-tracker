@@ -48,9 +48,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           // A hint that pre-filters the account chooser. The signIn callback is what enforces it.
           hd: COMPANY_DOMAIN,
           scope: `openid email profile ${GMAIL_SEND} ${CALENDAR_EVENTS}`,
-          // Asking for consent every time is what makes Google hand back a refresh token.
+          // Offline access is what yields a refresh token. Google sends one whenever the
+          // grant is new or a scope was added, so consent need not be forced every time.
           access_type: 'offline',
-          prompt: 'select_account consent',
+          prompt: 'select_account',
         },
       },
     }),
