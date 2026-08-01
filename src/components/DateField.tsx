@@ -50,23 +50,21 @@ export function DateField({ name, label, value, onChange, hint, min, unavailable
         onClick={() => setOpen((wasOpen) => !wasOpen)}
         aria-haspopup="dialog"
         aria-expanded={open}
-        className="flex w-full items-center justify-between rounded-lg border border-black/15 px-3 py-2 text-left text-sm transition-colors hover:border-black/30 focus:border-black/40 focus:outline-none dark:border-white/20 dark:hover:border-white/35 dark:focus:border-white/50"
+        className="border-line hover:border-accent/60 focus:border-accent flex w-full items-center justify-between rounded-lg border px-3 py-2 text-left text-sm transition-colors focus:outline-none"
       >
         <span>{formatRomanian(value)}</span>
-        <span aria-hidden className="text-black/40 dark:text-white/40">
+        <span aria-hidden className="text-muted">
           &#9662;
         </span>
       </button>
 
-      {hint && (
-        <span className="mt-1.5 block text-xs text-black/50 dark:text-white/50">{hint}</span>
-      )}
+      {hint && <span className="text-muted mt-1.5 block text-xs">{hint}</span>}
 
       {open && (
         <div
           role="dialog"
           aria-label={label}
-          className="bg-background absolute z-20 mt-2 rounded-xl border border-black/10 p-2 shadow-lg dark:border-white/15"
+          className="bg-bg border-line absolute z-20 mt-2 rounded-xl border p-2 shadow-lg"
         >
           <DayPicker
             mode="single"

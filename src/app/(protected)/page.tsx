@@ -25,7 +25,7 @@ export default async function DashboardPage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Time off</h1>
           {balance.remaining === null ? (
-            <p className="mt-1 text-sm text-black/60 dark:text-white/60">
+            <p className="text-muted mt-1 text-sm">
               No allowance set for {year}.{' '}
               <Link href="/settings" className="underline underline-offset-4">
                 Add it in Settings
@@ -33,9 +33,9 @@ export default async function DashboardPage() {
               to start booking.
             </p>
           ) : (
-            <p className="mt-1 text-sm text-black/60 dark:text-white/60">
-              <span className="font-semibold text-black dark:text-white">{balance.remaining}</span>{' '}
-              days remaining in {year} &middot; {balance.granted} granted
+            <p className="text-muted mt-1 text-sm">
+              <span className="text-ink font-semibold">{balance.remaining}</span> days remaining in{' '}
+              {year} &middot; {balance.granted} granted
               {balance.carriedOver > 0 && ` + ${balance.carriedOver} carried over`} &middot;{' '}
               {balance.used} used
             </p>
@@ -43,14 +43,14 @@ export default async function DashboardPage() {
         </div>
         <Link
           href="/new"
-          className="bg-foreground text-background rounded-lg px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90"
+          className="bg-accent text-accent-ink rounded-lg px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90"
         >
           New time off
         </Link>
       </section>
 
       {!canPrint && (
-        <p className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200">
+        <p className="border-holiday/40 bg-surface text-ink rounded-lg border px-4 py-3 text-sm">
           Add your details and signature in{' '}
           <Link href="/settings" className="underline underline-offset-4">
             Settings
@@ -60,7 +60,7 @@ export default async function DashboardPage() {
       )}
 
       {timeoffs.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-black/15 px-4 py-12 text-center text-sm text-black/50 dark:border-white/20 dark:text-white/50">
+        <p className="border-line text-muted rounded-lg border border-dashed px-4 py-12 text-center text-sm">
           No time off booked yet.
         </p>
       ) : (
@@ -69,9 +69,9 @@ export default async function DashboardPage() {
 
           return (
             <section key={groupYear} className="space-y-1">
-              <div className="flex flex-wrap items-baseline justify-between gap-x-4 border-b border-black/10 pb-2 dark:border-white/15">
+              <div className="border-line flex flex-wrap items-baseline justify-between gap-x-4 border-b pb-2">
                 <h2 className="text-lg font-semibold tracking-tight">{groupYear}</h2>
-                <p className="text-sm text-black/50 dark:text-white/50">
+                <p className="text-muted text-sm">
                   {groupBalance.used} used
                   {groupBalance.granted !== null && (
                     <>
@@ -83,7 +83,7 @@ export default async function DashboardPage() {
                   )}
                 </p>
               </div>
-              <ul className="divide-y divide-black/10 dark:divide-white/10">
+              <ul className="divide-line divide-y">
                 {entries.map((timeoff) => (
                   <li key={timeoff.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 py-4">
                     <div className="min-w-52">
@@ -92,7 +92,7 @@ export default async function DashboardPage() {
                         {timeoff.endDate !== timeoff.startDate &&
                           ` - ${formatRomanian(timeoff.endDate)}`}
                       </p>
-                      <p className="mt-0.5 text-sm text-black/50 dark:text-white/50">
+                      <p className="text-muted mt-0.5 text-sm">
                         {timeoff.workingDays} working {timeoff.workingDays === 1 ? 'day' : 'days'}
                         {' · '}requested {formatRomanian(timeoff.requestDate)}
                       </p>
@@ -102,7 +102,7 @@ export default async function DashboardPage() {
                         <>
                           <a
                             href={`/api/timeoffs/${timeoff.id}/pdf`}
-                            className="rounded-lg border border-black/15 px-3 py-1.5 transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
+                            className="border-line hover:bg-surface rounded-lg border px-3 py-1.5 transition-colors"
                           >
                             Download PDF
                           </a>
@@ -115,7 +115,7 @@ export default async function DashboardPage() {
                       )}
                       <Link
                         href={`/timeoffs/${timeoff.id}/edit`}
-                        className="rounded-lg border border-black/15 px-3 py-1.5 transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
+                        className="border-line hover:bg-surface rounded-lg border px-3 py-1.5 transition-colors"
                       >
                         Edit
                       </Link>

@@ -1,54 +1,120 @@
 @import 'tailwindcss';
 @import 'react-day-picker/style.css';
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/*
+ * Slate: graphite with a muted periwinkle accent, designed dark first.
+ * Colours live only here; components refer to them by role.
+ */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-booked: var(--booked);
+  --color-booked-ink: var(--booked-ink);
+  --color-holiday: var(--holiday);
+  --color-danger: var(--danger);
+  --color-danger-surface: var(--danger-surface);
+  --color-weekend: var(--weekend);
   --font-sans: var(--font-geist-sans);
 }
 
+/* The theme switcher stamps data-theme on <html>; an explicit choice wins. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+:root {
+  --bg: #f7f8fb;
+  --surface: #edeff6;
+  --ink: #1d2029;
+  --muted: #666d80;
+  --line: #dfe2ec;
+  --accent: #4b5bd6;
+  --accent-ink: #ffffff;
+  --booked: #e2e6fb;
+  --booked-ink: #2c3799;
+  --holiday: #8f6226;
+  --danger: #b23b45;
+  --danger-surface: #fbeaec;
+  --weekend: #f1f2f8;
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:not([data-theme]) {
+    --bg: #14161c;
+    --surface: #1b1e26;
+    --ink: #e3e5ec;
+    --muted: #929aab;
+    --line: #282c36;
+    --accent: #8f9df0;
+    --accent-ink: #12141a;
+    --booked: #262b45;
+    --booked-ink: #c6cdfb;
+    --holiday: #d0a76a;
+    --danger: #e0757f;
+    --danger-surface: #2b1a1e;
+    --weekend: #171a21;
   }
 }
 
+:root[data-theme='dark'] {
+  --bg: #14161c;
+  --surface: #1b1e26;
+  --ink: #e3e5ec;
+  --muted: #929aab;
+  --line: #282c36;
+  --accent: #8f9df0;
+  --accent-ink: #12141a;
+  --booked: #262b45;
+  --booked-ink: #c6cdfb;
+  --holiday: #d0a76a;
+  --danger: #e0757f;
+  --danger-surface: #2b1a1e;
+  --weekend: #171a21;
+}
+
+:root[data-theme='light'] {
+  --bg: #f7f8fb;
+  --surface: #edeff6;
+  --ink: #1d2029;
+  --muted: #666d80;
+  --line: #dfe2ec;
+  --accent: #4b5bd6;
+  --accent-ink: #ffffff;
+  --booked: #e2e6fb;
+  --booked-ink: #2c3799;
+  --holiday: #8f6226;
+  --danger: #b23b45;
+  --danger-surface: #fbeaec;
+  --weekend: #f1f2f8;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg);
+  color: var(--ink);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
 }
 
 .rdp-root {
-  --rdp-accent-color: #059669;
-  --rdp-accent-background-color: #d1fae5;
+  --rdp-accent-color: var(--accent);
+  --rdp-accent-background-color: var(--booked);
   --rdp-day-height: 2.25rem;
   --rdp-day-width: 2.25rem;
   --rdp-months-gap: 1.5rem;
   --rdp-nav-height: 2.25rem;
+  --rdp-today-color: var(--accent);
   font-size: 0.875rem;
-}
-
-@media (prefers-color-scheme: dark) {
-  .rdp-root {
-    --rdp-accent-color: #34d399;
-    --rdp-accent-background-color: #064e3b;
-  }
 }
 
 /* Days that cost no allowance, and days already spoken for. */
 .rdp-day.is-holiday:not(.rdp-selected) .rdp-day_button {
-  color: #b45309;
+  color: var(--holiday);
   font-weight: 600;
 }
 
 .rdp-day.is-booked:not(.rdp-selected) .rdp-day_button {
   text-decoration: line-through;
-  opacity: 0.6;
+  opacity: 0.55;
 }

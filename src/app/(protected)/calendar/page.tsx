@@ -81,31 +81,28 @@ export default async function CalendarPage({
         <div className="flex items-center gap-2 text-sm">
           <Link
             href={`/calendar?month=${shiftMonth(year, month, -1)}`}
-            className="rounded-lg border border-black/15 px-3 py-1.5 transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
+            className="border-line hover:bg-surface rounded-lg border px-3 py-1.5 transition-colors"
           >
             Previous
           </Link>
           <Link
             href="/calendar"
-            className="rounded-lg border border-black/15 px-3 py-1.5 transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
+            className="border-line hover:bg-surface rounded-lg border px-3 py-1.5 transition-colors"
           >
             Today
           </Link>
           <Link
             href={`/calendar?month=${shiftMonth(year, month, 1)}`}
-            className="rounded-lg border border-black/15 px-3 py-1.5 transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
+            className="border-line hover:bg-surface rounded-lg border px-3 py-1.5 transition-colors"
           >
             Next
           </Link>
         </div>
       </div>
 
-      <div className="grid grid-cols-7 gap-px overflow-hidden rounded-lg border border-black/10 bg-black/10 dark:border-white/15 dark:bg-white/15">
+      <div className="border-line bg-line grid grid-cols-7 gap-px overflow-hidden rounded-lg border">
         {WEEKDAY_LABELS.map((label) => (
-          <div
-            key={label}
-            className="bg-background px-2 py-2 text-center text-xs font-medium text-black/50 dark:text-white/50"
-          >
+          <div key={label} className="bg-bg text-muted px-2 py-2 text-center text-xs font-medium">
             {label}
           </div>
         ))}
@@ -119,40 +116,38 @@ export default async function CalendarPage({
             <div
               key={date}
               className={[
-                'bg-background min-h-20 px-2 py-1.5 text-sm',
+                'bg-bg min-h-20 px-2 py-1.5 text-sm',
                 inMonth ? '' : 'opacity-35',
-                isWeekend(date) ? 'bg-black/[0.03] dark:bg-white/[0.04]' : '',
+                isWeekend(date) ? 'bg-weekend' : '',
               ].join(' ')}
             >
               <span
                 className={[
                   'inline-flex h-6 w-6 items-center justify-center rounded-full text-xs',
-                  date === now ? 'bg-foreground text-background font-semibold' : '',
+                  date === now ? 'bg-accent text-accent-ink font-semibold' : '',
                 ].join(' ')}
               >
                 {Number(date.slice(8, 10))}
               </span>
               {isBooked && (
-                <span className="mt-1 block rounded bg-emerald-100 px-1.5 py-0.5 text-[11px] font-medium text-emerald-900 dark:bg-emerald-900 dark:text-emerald-100">
+                <span className="bg-booked text-booked-ink mt-1 block rounded px-1.5 py-0.5 text-[11px] font-medium">
                   Time off
                 </span>
               )}
               {holiday && (
-                <span className="mt-1 block text-[11px] leading-tight text-amber-700 dark:text-amber-400">
-                  {holiday}
-                </span>
+                <span className="text-holiday mt-1 block text-[11px] leading-tight">{holiday}</span>
               )}
             </div>
           )
         })}
       </div>
 
-      <div className="flex flex-wrap gap-4 text-xs text-black/60 dark:text-white/60">
+      <div className="text-muted flex flex-wrap gap-4 text-xs">
         <span className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded bg-emerald-200 dark:bg-emerald-800" /> Your time off
+          <span className="bg-booked h-3 w-3 rounded" /> Your time off
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded bg-amber-200 dark:bg-amber-700" /> Legal holiday
+          <span className="bg-holiday h-3 w-3 rounded" /> Legal holiday
         </span>
       </div>
     </div>

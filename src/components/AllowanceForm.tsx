@@ -4,7 +4,7 @@ import { useActionState } from 'react'
 import { saveAllowance } from '@/actions/profile'
 
 const field =
-  'w-24 rounded-lg border border-black/15 bg-transparent px-3 py-2 text-sm outline-none focus:border-black/40 dark:border-white/20 dark:focus:border-white/50'
+  'w-24 rounded-lg border border-line bg-transparent px-3 py-2 text-sm outline-none focus:border-accent'
 
 type Props = {
   year: number
@@ -19,9 +19,7 @@ export function AllowanceForm({ year, days, editableYear = false }: Props) {
   return (
     <form action={submit} className="flex flex-wrap items-end gap-3">
       <label>
-        <span className="mb-1.5 block text-xs font-medium text-black/60 dark:text-white/60">
-          Year
-        </span>
+        <span className="text-muted mb-1.5 block text-xs font-medium">Year</span>
         {editableYear ? (
           <input type="number" name="year" required defaultValue={year} className={field} />
         ) : (
@@ -33,9 +31,7 @@ export function AllowanceForm({ year, days, editableYear = false }: Props) {
       </label>
 
       <label>
-        <span className="mb-1.5 block text-xs font-medium text-black/60 dark:text-white/60">
-          Days
-        </span>
+        <span className="text-muted mb-1.5 block text-xs font-medium">Days</span>
         <input
           type="number"
           name="days"
@@ -50,13 +46,13 @@ export function AllowanceForm({ year, days, editableYear = false }: Props) {
       <button
         type="submit"
         disabled={pending}
-        className="rounded-lg border border-black/15 px-3 py-2 text-sm transition-colors hover:bg-black/5 disabled:opacity-50 dark:border-white/20 dark:hover:bg-white/10"
+        className="border-line hover:bg-surface rounded-lg border px-3 py-2 text-sm transition-colors disabled:opacity-50"
       >
         {pending ? 'Saving...' : days === undefined ? 'Add year' : 'Save'}
       </button>
 
       {state.error && (
-        <span role="alert" className="text-xs text-red-600 dark:text-red-400">
+        <span role="alert" className="text-danger text-xs">
           {state.error}
         </span>
       )}

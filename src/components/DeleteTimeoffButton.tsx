@@ -13,7 +13,7 @@ function Submit({ period }: { period: string }) {
       onClick={(event) => {
         if (!confirm(`Delete the time off on ${period}?`)) event.preventDefault()
       }}
-      className="rounded-lg border border-black/15 px-3 py-1.5 text-red-700 transition-colors hover:bg-red-50 disabled:opacity-50 dark:border-white/20 dark:text-red-400 dark:hover:bg-red-950"
+      className="border-line text-danger hover:bg-danger-surface rounded-lg border px-3 py-1.5 transition-colors disabled:opacity-50"
     >
       {pending ? 'Deleting...' : 'Delete'}
     </button>

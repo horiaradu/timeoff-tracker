@@ -22,7 +22,7 @@ export default async function SettingsPage() {
       <section className="space-y-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
-          <p className="mt-1 text-sm text-black/60 dark:text-white/60">
+          <p className="text-muted mt-1 text-sm">
             These details are printed on every leave request you download.
           </p>
         </div>
@@ -32,9 +32,7 @@ export default async function SettingsPage() {
       <section className="space-y-4">
         <div>
           <h2 className="text-lg font-semibold tracking-tight">Vacation days</h2>
-          <p className="mt-1 text-sm text-black/60 dark:text-white/60">
-            How many days you are entitled to each year.
-          </p>
+          <p className="text-muted mt-1 text-sm">How many days you are entitled to each year.</p>
         </div>
 
         <div className="space-y-4">
@@ -43,7 +41,7 @@ export default async function SettingsPage() {
             return (
               <div key={allowance.id} className="flex flex-wrap items-end gap-4">
                 <AllowanceForm year={allowance.year} days={allowance.days} />
-                <span className="pb-2 text-sm text-black/50 dark:text-white/50">
+                <span className="text-muted pb-2 text-sm">
                   {balance.carriedOver > 0 && `+${balance.carriedOver} carried over · `}
                   {balance.used} used · {balance.remaining} left
                 </span>
@@ -51,7 +49,7 @@ export default async function SettingsPage() {
             )
           })}
 
-          <div className="border-t border-black/10 pt-4 dark:border-white/15">
+          <div className="border-line border-t pt-4">
             <AllowanceForm year={Math.max(highest + 1, currentYear)} editableYear />
           </div>
         </div>

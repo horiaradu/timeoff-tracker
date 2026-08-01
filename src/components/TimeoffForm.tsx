@@ -89,13 +89,13 @@ export function TimeoffForm({
       </div>
 
       {summary && (
-        <div className="max-w-lg rounded-lg border border-black/10 px-4 py-3 text-sm dark:border-white/15">
+        <div className="border-line max-w-lg rounded-lg border px-4 py-3 text-sm">
           <p>
             Uses <span className="font-semibold">{summary.days}</span> working{' '}
             {summary.days === 1 ? 'day' : 'days'}.
           </p>
           {summary.perYear.map(({ year, charge, balance }) => (
-            <p key={year} className="mt-1 text-black/60 dark:text-white/60">
+            <p key={year} className="text-muted mt-1">
               {balance.remaining === null ? (
                 <>No allowance set for {year}.</>
               ) : (
@@ -109,7 +109,7 @@ export function TimeoffForm({
             </p>
           ))}
           {summary.holidays.length > 0 && (
-            <p className="mt-2 text-black/60 dark:text-white/60">
+            <p className="text-muted mt-2">
               Not counted: {summary.holidays.map((holiday) => holiday.name).join(', ')}.
             </p>
           )}
@@ -119,7 +119,7 @@ export function TimeoffForm({
       {state.error && (
         <p
           role="alert"
-          className="max-w-lg rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-950 dark:text-red-300"
+          className="bg-danger-surface text-danger max-w-lg rounded-lg px-4 py-3 text-sm"
         >
           {state.error}
         </p>
@@ -129,11 +129,11 @@ export function TimeoffForm({
         <button
           type="submit"
           disabled={pending}
-          className="bg-foreground text-background rounded-lg px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90 disabled:opacity-50"
+          className="bg-accent text-accent-ink rounded-lg px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90 disabled:opacity-50"
         >
           {pending ? 'Saving...' : submitLabel}
         </button>
-        <Link href="/" className="text-sm text-black/60 hover:underline dark:text-white/60">
+        <Link href="/" className="text-muted text-sm hover:underline">
           Cancel
         </Link>
       </div>

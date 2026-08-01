@@ -107,9 +107,9 @@ export function SignatureField({ existing }: { existing: string | null }) {
             width={180}
             height={60}
             unoptimized
-            className="rounded border border-black/10 bg-white p-1 dark:border-white/15"
+            className="border-line rounded border bg-white p-1"
           />
-          <span className="text-xs text-black/50 dark:text-white/50">
+          <span className="text-muted text-xs">
             Saved. Draw below only if you want to replace it.
           </span>
         </div>
@@ -118,19 +118,15 @@ export function SignatureField({ existing }: { existing: string | null }) {
       <canvas
         ref={canvas}
         style={{ width: WIDTH, height: HEIGHT }}
-        className="w-full max-w-full touch-none rounded-lg border border-dashed border-black/25 bg-white dark:border-white/30"
+        className="border-line w-full max-w-full touch-none rounded-lg border border-dashed bg-white"
       />
       <input type="hidden" name="signaturePng" value={drawing} />
 
       <div className="flex items-center gap-3 text-xs">
-        <button
-          type="button"
-          onClick={clear}
-          className="text-black/60 underline underline-offset-4 dark:text-white/60"
-        >
+        <button type="button" onClick={clear} className="text-muted underline underline-offset-4">
           Clear
         </button>
-        <span className="text-black/50 dark:text-white/50">
+        <span className="text-muted">
           {drawing ? 'New signature ready to save.' : 'Draw with your mouse, trackpad or finger.'}
         </span>
       </div>

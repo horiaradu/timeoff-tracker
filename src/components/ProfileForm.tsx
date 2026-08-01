@@ -15,7 +15,7 @@ const FIELDS = [
 ] as const
 
 const field =
-  'w-full rounded-lg border border-black/15 bg-transparent px-3 py-2 text-sm outline-none focus:border-black/40 dark:border-white/20 dark:focus:border-white/50'
+  'w-full rounded-lg border border-line bg-transparent px-3 py-2 text-sm outline-none focus:border-accent'
 
 export function ProfileForm({ profile }: { profile: Profile | undefined }) {
   const [state, submit, pending] = useActionState(saveProfile, {})
@@ -34,7 +34,7 @@ export function ProfileForm({ profile }: { profile: Profile | undefined }) {
               className={field}
             />
             {state.fieldErrors?.[entry.name] && (
-              <span className="mt-1 block text-xs text-red-600 dark:text-red-400">
+              <span className="text-danger mt-1 block text-xs">
                 {state.fieldErrors[entry.name][0]}
               </span>
             )}
@@ -45,10 +45,7 @@ export function ProfileForm({ profile }: { profile: Profile | undefined }) {
       <SignatureField existing={profile?.signaturePng ?? null} />
 
       {state.error && (
-        <p
-          role="alert"
-          className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-950 dark:text-red-300"
-        >
+        <p role="alert" className="bg-danger-surface text-danger rounded-lg px-4 py-3 text-sm">
           {state.error}
         </p>
       )}
@@ -56,7 +53,7 @@ export function ProfileForm({ profile }: { profile: Profile | undefined }) {
       <button
         type="submit"
         disabled={pending}
-        className="bg-foreground text-background rounded-lg px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90 disabled:opacity-50"
+        className="bg-accent text-accent-ink rounded-lg px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90 disabled:opacity-50"
       >
         {pending ? 'Saving...' : 'Save details'}
       </button>

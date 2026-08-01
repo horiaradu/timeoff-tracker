@@ -5,6 +5,10 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     '/api/timeoffs/[id]/pdf': ['src/pdf/fonts/**/*.ttf'],
   },
+  images: {
+    // Google profile pictures.
+    remotePatterns: [{ protocol: 'https', hostname: 'lh3.googleusercontent.com' }],
+  },
 }
 
 export default nextConfig

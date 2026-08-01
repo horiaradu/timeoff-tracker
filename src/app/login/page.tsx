@@ -16,16 +16,16 @@ export default async function LoginPage({
 
   return (
     <main className="flex flex-1 items-center justify-center p-6">
-      <div className="w-full max-w-sm rounded-2xl border border-black/10 p-8 shadow-sm dark:border-white/15">
+      <div className="border-line w-full max-w-sm rounded-2xl border p-8 shadow-sm">
         <h1 className="text-2xl font-semibold tracking-tight">Time off</h1>
-        <p className="mt-2 text-sm text-black/60 dark:text-white/60">
+        <p className="text-muted mt-2 text-sm">
           Track your vacation days and generate leave requests.
         </p>
 
         {message && (
           <p
             role="alert"
-            className="mt-6 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300"
+            className="bg-danger-surface text-danger mt-6 rounded-lg px-3 py-2 text-sm"
           >
             {message}
           </p>
@@ -40,15 +40,13 @@ export default async function LoginPage({
         >
           <button
             type="submit"
-            className="bg-foreground text-background w-full rounded-lg px-4 py-2.5 text-sm font-medium transition-opacity hover:opacity-90"
+            className="bg-accent text-accent-ink w-full rounded-lg px-4 py-2.5 text-sm font-medium transition-opacity hover:opacity-90"
           >
             Sign in with Google
           </button>
         </form>
 
-        <p className="mt-4 text-center text-xs text-black/50 dark:text-white/50">
-          Use your @{COMPANY_DOMAIN} account
-        </p>
+        <p className="text-muted mt-4 text-center text-xs">Use your @{COMPANY_DOMAIN} account</p>
       </div>
     </main>
   )

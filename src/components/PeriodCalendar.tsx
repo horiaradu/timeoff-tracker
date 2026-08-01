@@ -17,7 +17,7 @@ type Props = {
 
 export function PeriodCalendar({ start, end, onChange, month, onMonthChange, taken }: Props) {
   return (
-    <div className="rounded-xl border border-black/10 p-3 dark:border-white/15">
+    <div className="border-line rounded-xl border p-3">
       <DayPicker
         mode="range"
         required
@@ -38,9 +38,9 @@ export function PeriodCalendar({ start, end, onChange, month, onMonthChange, tak
         }}
         modifiersClassNames={{ holiday: 'is-holiday', booked: 'is-booked' }}
       />
-      <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 px-1 text-xs text-black/55 dark:text-white/55">
+      <p className="text-muted mt-2 flex flex-wrap gap-x-4 gap-y-1 px-1 text-xs">
         <span>Click a day to start the period, then click the last day.</span>
-        <span className="font-semibold text-amber-700 dark:text-amber-500">Legal holiday</span>
+        <span className="text-holiday font-semibold">Legal holiday</span>
         <span className="line-through">Already booked, cannot be used</span>
       </p>
     </div>

@@ -40,25 +40,23 @@ export function EmailRequestButton({ id, period, lastRecipient }: Props) {
         onClick={() => setOpen((wasOpen) => !wasOpen)}
         aria-haspopup="dialog"
         aria-expanded={open}
-        className="rounded-lg border border-black/15 px-3 py-1.5 transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
+        className="border-line hover:bg-surface rounded-lg border px-3 py-1.5 transition-colors"
       >
         Email
       </button>
 
       {state.sentTo && !open && (
-        <span className="ml-2 text-xs text-emerald-700 dark:text-emerald-400">
-          Sent to {state.sentTo}
-        </span>
+        <span className="text-accent ml-2 text-xs">Sent to {state.sentTo}</span>
       )}
 
       {open && (
         <div
           role="dialog"
           aria-label={`Email the request for ${period}`}
-          className="bg-background absolute right-0 z-20 mt-2 w-80 rounded-xl border border-black/10 p-4 shadow-lg dark:border-white/15"
+          className="bg-bg border-line absolute right-0 z-20 mt-2 w-80 rounded-xl border p-4 shadow-lg"
         >
           <p className="text-sm font-medium">Send the request</p>
-          <p className="mt-1 text-xs text-black/55 dark:text-white/55">
+          <p className="text-muted mt-1 text-xs">
             Subject &ldquo;Cerere concediu {period}&rdquo;, sent from your own address with the PDF
             attached.
           </p>
@@ -72,24 +70,20 @@ export function EmailRequestButton({ id, period, lastRecipient }: Props) {
               autoFocus
               defaultValue={lastRecipient ?? ''}
               placeholder="cineva@smilecloud.com"
-              className="w-full rounded-lg border border-black/15 bg-transparent px-3 py-2 text-sm outline-none focus:border-black/40 dark:border-white/20 dark:focus:border-white/50"
+              className="border-line focus:border-accent w-full rounded-lg border bg-transparent px-3 py-2 text-sm outline-none"
             />
 
             {state.error && (
-              <p role="alert" className="text-xs text-red-600 dark:text-red-400">
+              <p role="alert" className="text-danger text-xs">
                 {state.error}
               </p>
             )}
-            {state.sentTo && (
-              <p className="text-xs text-emerald-700 dark:text-emerald-400">
-                Sent to {state.sentTo}.
-              </p>
-            )}
+            {state.sentTo && <p className="text-accent text-xs">Sent to {state.sentTo}.</p>}
 
             <button
               type="submit"
               disabled={pending}
-              className="bg-foreground text-background w-full rounded-lg px-3 py-2 text-sm font-medium transition-opacity hover:opacity-90 disabled:opacity-50"
+              className="bg-accent text-accent-ink w-full rounded-lg px-3 py-2 text-sm font-medium transition-opacity hover:opacity-90 disabled:opacity-50"
             >
               {pending ? 'Sending...' : 'Send'}
             </button>
