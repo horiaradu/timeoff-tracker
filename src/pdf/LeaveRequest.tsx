@@ -61,6 +61,21 @@ function period(start: DateOnly, end: DateOnly): string {
   return start === end ? formatRomanian(start) : `${formatRomanian(start)} - ${formatRomanian(end)}`
 }
 
+/**
+ * Built as one string on purpose: separate text children are laid out as
+ * separate words, which lets a line break fall between a value and the comma
+ * after it, and the break then shows up as a stray hyphen.
+ */
+function sentence(profile: LeaveRequestProfile, timeoff: LeaveRequestPeriod): string {
+  return (
+    `Subsemnatul, ${profile.fullName}, avand CI cu seria ${profile.ciSeries}, ` +
+    `numarul ${profile.ciNumber}, CNP ${profile.cnp}, ` +
+    `domiciliat in localitatea ${profile.city}, angajat al SC SMILECLOUD SRL ` +
+    `in functia de ${profile.jobTitle} solicit concediu de odihna in data/perioada de ` +
+    period(timeoff.startDate, timeoff.endDate)
+  )
+}
+
 const styles = StyleSheet.create({
   page: {
     paddingTop: 72,
@@ -91,11 +106,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   signedBy: {
-    alignItems: 'flex-end',
+    alignItems: 'center',
   },
+  /** A box the drawing is fitted inside, so any shape stays centred under the name. */
   signature: {
-    width: 90,
-    height: 45,
+    marginTop: 5,
+    width: 105,
+    height: 38,
     objectFit: 'contain',
   },
   requestDate: {
@@ -117,12 +134,7 @@ function LeaveRequest({ profile, timeoff }: LeaveRequestProps) {
       <Page size="A4" style={styles.page}>
         <Text style={styles.title}>CATRE SC SMILECLOUD SRL,</Text>
 
-        <Text style={styles.body}>
-          Subsemnatul, {profile.fullName}, avand CI cu seria {profile.ciSeries}, numarul{' '}
-          {profile.ciNumber}, CNP {profile.cnp}, domiciliat in localitatea {profile.city}, angajat
-          al SC SMILECLOUD SRL in functia de {profile.jobTitle} solicit concediu de odihna in
-          data/perioada de {period(timeoff.startDate, timeoff.endDate)}
-        </Text>
+        <Text style={styles.body}>{sentence(profile, timeoff)}</Text>
 
         <Text style={styles.thanks}>Va multumesc,</Text>
 
