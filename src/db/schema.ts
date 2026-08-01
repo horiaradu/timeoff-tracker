@@ -69,6 +69,10 @@ export const timeoffs = pgTable(
     workingDays: integer('working_days').notNull(),
     /** Printed as "Data:" on the request. */
     requestDate: date('request_date').notNull(),
+    /** Out-of-office event on the user's own calendar; absent when never synced. */
+    personalEventId: text('personal_event_id'),
+    /** The matching entry on the team calendar. */
+    sharedEventId: text('shared_event_id'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [

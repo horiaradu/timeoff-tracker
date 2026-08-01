@@ -7,7 +7,8 @@ import { db } from '@/db'
 import { findGoogleRefreshToken, findProfile, findTimeoff } from '@/db/queries'
 import { profiles } from '@/db/schema'
 import { formatPeriod } from '@/lib/dates'
-import { MailError, sendMail } from '@/lib/gmail'
+import { sendMail } from '@/lib/gmail'
+import { GoogleError } from '@/lib/google'
 import { requireUserId } from '@/lib/session'
 import { renderLeaveRequest } from '@/pdf/LeaveRequest'
 import { invalid, type FormState } from './state'
@@ -70,7 +71,7 @@ export async function emailRequest(_state: SendState, formData: FormData): Promi
       },
     })
   } catch (error) {
-    if (error instanceof MailError) return { error: error.message }
+    if (error instanceof GoogleError) return { error: error.message }
     throw error
   }
 

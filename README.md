@@ -6,7 +6,8 @@ request ("cerere concediu de odihna") for each booking.
 - Book, edit and delete time off, with a list and a month calendar.
 - Weekends and Romanian legal holidays never use up allowance.
 - A booking is refused when it exceeds the days left for the year, or overlaps another one.
-- Download a filled, signed PDF request for any booking.
+- Download a filled, signed PDF request for any booking, or email it from your own Gmail.
+- Each booking keeps an out-of-office event on your calendar and an entry on the team calendar.
 - Google sign-in, restricted to verified `@smilecloud.com` accounts.
 
 ## Stack
@@ -43,6 +44,20 @@ application:
 
 Sign-in additionally requires the Google account's email to be verified and to end in
 `@smilecloud.com`; anything else is rejected with a message on the login page.
+
+Emailing a request and syncing the calendar both act as the signed-in user, which needs
+more than sign-in alone:
+
+- **Enable** the **Gmail API** and the **Google Calendar API** in the same Cloud project
+  (APIs &amp; Services → Library). Without this, sign-in works and the feature fails with a 403.
+- **Declare the scopes** on the OAuth consent screen (Data access):
+  `https://www.googleapis.com/auth/gmail.send` and
+  `https://www.googleapis.com/auth/calendar.events`. The app is Internal, so no Google review
+  is needed, but an undeclared scope can be refused outright.
+- **Sign out and in again** after any scope change. Google only returns the refresh token the
+  app stores on a fresh consent, and without it these features report that and do nothing.
+
+The team calendar is identified in `src/lib/calendar.ts`.
 
 > If port 3000 is taken, run `npx next dev -p 3100` and register that port's origin and
 > callback URL in the OAuth client as well — the callback URL must match exactly.

@@ -1,4 +1,5 @@
-const TOKEN_URL = 'https://oauth2.googleapis.com/token'
+import { accessTokenFrom, GoogleError } from './google'
+
 const SEND_URL = 'https://gmail.googleapis.com/gmail/v1/users/me/messages/send'
 
 export type Attachment = {
@@ -13,30 +14,6 @@ export type Mail = {
   subject: string
   text: string
   attachment: Attachment
-}
-
-export class MailError extends Error {}
-
-/** Google access tokens last an hour, so one is fetched per send. */
-async function accessTokenFrom(refreshToken: string): Promise<string> {
-  const response = await fetch(TOKEN_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      client_id: process.env.AUTH_GOOGLE_ID ?? '',
-      client_secret: process.env.AUTH_GOOGLE_SECRET ?? '',
-      refresh_token: refreshToken,
-      grant_type: 'refresh_token',
-    }),
-  })
-
-  if (!response.ok) {
-    throw new MailError('Google would not renew the mail permission. Sign out and in again.')
-  }
-
-  const { access_token: accessToken } = (await response.json()) as { access_token?: string }
-  if (!accessToken) throw new MailError('Google returned no access token.')
-  return accessToken
 }
 
 /** Subjects can carry accents, which only survive the header when encoded. */
@@ -95,6 +72,6 @@ export async function sendMail(refreshToken: string, mail: Mail): Promise<void> 
 
   if (!response.ok) {
     const detail = await response.text()
-    throw new MailError(`Gmail refused the message (${response.status}). ${detail.slice(0, 200)}`)
+    throw new GoogleError(`Gmail refused the message (${response.status}). ${detail.slice(0, 200)}`)
   }
 }

@@ -11,8 +11,9 @@ function isCompanyAccount(profile: Profile | undefined): boolean {
   return profile?.email_verified === true && email?.endsWith(`@${COMPANY_DOMAIN}`) === true
 }
 
-/** Permission to send the leave request from the signed-in user's own mailbox. */
+/** Sending the request from the user's own mailbox, and keeping their calendar in step. */
 const GMAIL_SEND = 'https://www.googleapis.com/auth/gmail.send'
+const CALENDAR_EVENTS = 'https://www.googleapis.com/auth/calendar.events'
 
 /**
  * Creates the user on first sign-in and keeps their display name current.
@@ -46,7 +47,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         params: {
           // A hint that pre-filters the account chooser. The signIn callback is what enforces it.
           hd: COMPANY_DOMAIN,
-          scope: `openid email profile ${GMAIL_SEND}`,
+          scope: `openid email profile ${GMAIL_SEND} ${CALENDAR_EVENTS}`,
           // Asking for consent every time is what makes Google hand back a refresh token.
           access_type: 'offline',
           prompt: 'select_account consent',
