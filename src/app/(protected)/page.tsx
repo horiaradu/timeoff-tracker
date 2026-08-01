@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { DeleteTimeoffButton } from '@/components/DeleteTimeoffButton'
 import { allowancesByYear, findProfile, listTimeoffs } from '@/db/queries'
+import type { Timeoff } from '@/db/schema'
 import { formatRomanian, today, year as yearOf } from '@/lib/dates'
 import { requireUserId } from '@/lib/session'
 import { balanceFor } from '@/lib/validation'
@@ -62,43 +63,77 @@ export default async function DashboardPage() {
           No time off booked yet.
         </p>
       ) : (
-        <ul className="divide-y divide-black/10 dark:divide-white/10">
-          {timeoffs.map((timeoff) => (
-            <li key={timeoff.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 py-4">
-              <div className="min-w-52">
-                <p className="font-medium">
-                  {formatRomanian(timeoff.startDate)}
-                  {timeoff.endDate !== timeoff.startDate && ` - ${formatRomanian(timeoff.endDate)}`}
-                </p>
-                <p className="mt-0.5 text-sm text-black/50 dark:text-white/50">
-                  {timeoff.workingDays} working {timeoff.workingDays === 1 ? 'day' : 'days'}
-                  {' · '}requested {formatRomanian(timeoff.requestDate)}
+        groupByYear(timeoffs).map(([groupYear, entries]) => {
+          const groupBalance = balanceFor(groupYear, timeoffs, allowances, year)
+
+          return (
+            <section key={groupYear} className="space-y-1">
+              <div className="flex flex-wrap items-baseline justify-between gap-x-4 border-b border-black/10 pb-2 dark:border-white/15">
+                <h2 className="text-lg font-semibold tracking-tight">{groupYear}</h2>
+                <p className="text-sm text-black/50 dark:text-white/50">
+                  {groupBalance.used} used
+                  {groupBalance.granted !== null && (
+                    <>
+                      {' of '}
+                      {groupBalance.granted + groupBalance.carriedOver}
+                      {groupBalance.carriedOver > 0 &&
+                        ` (${groupBalance.carriedOver} carried over)`}
+                    </>
+                  )}
                 </p>
               </div>
-              <div className="ml-auto flex items-center gap-3 text-sm">
-                {canPrint && (
-                  <a
-                    href={`/api/timeoffs/${timeoff.id}/pdf`}
-                    className="rounded-lg border border-black/15 px-3 py-1.5 transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
-                  >
-                    Download PDF
-                  </a>
-                )}
-                <Link
-                  href={`/timeoffs/${timeoff.id}/edit`}
-                  className="rounded-lg border border-black/15 px-3 py-1.5 transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
-                >
-                  Edit
-                </Link>
-                <DeleteTimeoffButton
-                  id={timeoff.id}
-                  period={`${formatRomanian(timeoff.startDate)} - ${formatRomanian(timeoff.endDate)}`}
-                />
-              </div>
-            </li>
-          ))}
-        </ul>
+              <ul className="divide-y divide-black/10 dark:divide-white/10">
+                {entries.map((timeoff) => (
+                  <li key={timeoff.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 py-4">
+                    <div className="min-w-52">
+                      <p className="font-medium">
+                        {formatRomanian(timeoff.startDate)}
+                        {timeoff.endDate !== timeoff.startDate &&
+                          ` - ${formatRomanian(timeoff.endDate)}`}
+                      </p>
+                      <p className="mt-0.5 text-sm text-black/50 dark:text-white/50">
+                        {timeoff.workingDays} working {timeoff.workingDays === 1 ? 'day' : 'days'}
+                        {' · '}requested {formatRomanian(timeoff.requestDate)}
+                      </p>
+                    </div>
+                    <div className="ml-auto flex items-center gap-3 text-sm">
+                      {canPrint && (
+                        <a
+                          href={`/api/timeoffs/${timeoff.id}/pdf`}
+                          className="rounded-lg border border-black/15 px-3 py-1.5 transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
+                        >
+                          Download PDF
+                        </a>
+                      )}
+                      <Link
+                        href={`/timeoffs/${timeoff.id}/edit`}
+                        className="rounded-lg border border-black/15 px-3 py-1.5 transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
+                      >
+                        Edit
+                      </Link>
+                      <DeleteTimeoffButton
+                        id={timeoff.id}
+                        period={`${formatRomanian(timeoff.startDate)} - ${formatRomanian(timeoff.endDate)}`}
+                      />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )
+        })
       )}
     </div>
   )
+}
+
+/** Newest year first, entries inside each year keeping the order they came in. */
+function groupByYear(timeoffs: Timeoff[]): [number, Timeoff[]][] {
+  const groups = new Map<number, Timeoff[]>()
+  for (const timeoff of timeoffs) {
+    const group = groups.get(yearOf(timeoff.startDate))
+    if (group) group.push(timeoff)
+    else groups.set(yearOf(timeoff.startDate), [timeoff])
+  }
+  return [...groups].sort(([a], [b]) => b - a)
 }
