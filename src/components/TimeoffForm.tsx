@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useActionState, useState } from 'react'
 import type { FormState } from '@/actions/state'
 import { isDateOnly, type DateOnly } from '@/lib/dates'
-import { balanceFor, type Period } from '@/lib/validation'
+import { balanceFor, bookedDays, type Period } from '@/lib/validation'
 import { chargesByYear, holidaysInRange, workingDays } from '@/lib/workdays'
 import { DateField } from './DateField'
 import { PeriodCalendar } from './PeriodCalendar'
@@ -33,6 +33,7 @@ export function TimeoffForm({
   const [requestDate, setRequestDate] = useState(initial.requestDate)
 
   const others = existing.filter((period) => period.id !== initial.id)
+  const taken = bookedDays(others)
   const summary = summarise(start, end, others, new Map(allowances), currentYear)
 
   return (
@@ -44,18 +45,26 @@ export function TimeoffForm({
           name="startDate"
           label="First day"
           value={start}
+          unavailable={taken}
           onChange={(picked) => {
             setStart(picked)
             if (picked > end) setEnd(picked)
           }}
         />
-        <DateField name="endDate" label="Last day" value={end} min={start} onChange={setEnd} />
+        <DateField
+          name="endDate"
+          label="Last day"
+          value={end}
+          min={start}
+          unavailable={taken}
+          onChange={setEnd}
+        />
       </div>
 
       <PeriodCalendar
         start={start}
         end={end}
-        booked={others}
+        taken={taken}
         onChange={(from, to) => {
           setStart(from)
           setEnd(to)

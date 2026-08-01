@@ -1,4 +1,4 @@
-import { formatRomanian, today, year as yearOf, type DateOnly } from './dates'
+import { eachDay, formatRomanian, today, year as yearOf, type DateOnly } from './dates'
 import { chargesByYear, workingDays } from './workdays'
 
 export type Period = {
@@ -30,6 +30,15 @@ export type Balance = {
   /** Null when the user has not set an allowance for that year yet. */
   granted: number | null
   remaining: number | null
+}
+
+/** Every calendar day covered by the given time off, for marking them in a calendar. */
+export function bookedDays(periods: Period[]): Set<DateOnly> {
+  const days = new Set<DateOnly>()
+  for (const period of periods) {
+    for (const day of eachDay(period.startDate, period.endDate)) days.add(day)
+  }
+  return days
 }
 
 /** Working days already booked, per calendar year. */

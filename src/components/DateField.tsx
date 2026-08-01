@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { DayPicker } from 'react-day-picker'
 import { formatRomanian, fromLocalDate, toLocalDate, type DateOnly } from '@/lib/dates'
+import { holidaysOf } from '@/lib/holidays'
 
 type Props = {
   name: string
@@ -12,9 +13,11 @@ type Props = {
   hint?: string
   /** Earliest day that can be picked. */
   min?: DateOnly
+  /** Days that cannot be picked, such as time off already booked. */
+  unavailable?: Set<DateOnly>
 }
 
-export function DateField({ name, label, value, onChange, hint, min }: Props) {
+export function DateField({ name, label, value, onChange, hint, min, unavailable }: Props) {
   const [open, setOpen] = useState(false)
   const container = useRef<HTMLDivElement>(null)
 
@@ -72,7 +75,14 @@ export function DateField({ name, label, value, onChange, hint, min }: Props) {
             showOutsideDays
             defaultMonth={toLocalDate(value)}
             selected={toLocalDate(value)}
-            disabled={min ? { before: toLocalDate(min) } : undefined}
+            disabled={[
+              ...(min ? [{ before: toLocalDate(min) }] : []),
+              (date: Date) => unavailable?.has(fromLocalDate(date)) ?? false,
+            ]}
+            modifiers={{
+              holiday: (date: Date) => holidaysOf(date.getFullYear()).has(fromLocalDate(date)),
+            }}
+            modifiersClassNames={{ holiday: 'is-holiday' }}
             onSelect={(picked) => {
               onChange(fromLocalDate(picked))
               setOpen(false)
