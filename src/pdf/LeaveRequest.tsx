@@ -1,6 +1,15 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { Document, Font, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer'
+import {
+  Document,
+  Font,
+  Image,
+  Page,
+  StyleSheet,
+  Text,
+  View,
+  renderToBuffer,
+} from '@react-pdf/renderer'
 import { formatRomanian, type DateOnly } from '@/lib/dates'
 
 /**
@@ -68,7 +77,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   body: {
-    marginTop: 52,
+    marginTop: 55,
     textAlign: 'justify',
     textIndent: 36,
   },
@@ -93,11 +102,16 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   approval: {
-    marginTop: 60,
+    marginTop: 64,
   },
 })
 
-export function LeaveRequest({ profile, timeoff }: LeaveRequestProps) {
+/** The finished request, ready to stream back as a download. */
+export function renderLeaveRequest(props: LeaveRequestProps): Promise<Buffer> {
+  return renderToBuffer(<LeaveRequest {...props} />)
+}
+
+function LeaveRequest({ profile, timeoff }: LeaveRequestProps) {
   return (
     <Document title="Cerere concediu de odihna" author={profile.fullName}>
       <Page size="A4" style={styles.page}>
@@ -120,6 +134,7 @@ export function LeaveRequest({ profile, timeoff }: LeaveRequestProps) {
           <View style={styles.signedBy}>
             <Text>{profile.fullName}</Text>
             {profile.signaturePng ? (
+              // eslint-disable-next-line jsx-a11y/alt-text -- a PDF image, not an <img>
               <Image src={profile.signaturePng} style={styles.signature} />
             ) : null}
           </View>
