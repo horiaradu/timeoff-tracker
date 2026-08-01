@@ -1,34 +1,21 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { DayPicker } from 'react-day-picker'
 import { fromLocalDate, toLocalDate, type DateOnly } from '@/lib/dates'
 import { holidaysOf } from '@/lib/holidays'
-
-const MONTHS_SHOWN = 2
 
 type Props = {
   start: DateOnly
   end: DateOnly
   onChange: (start: DateOnly, end: DateOnly) => void
+  /** Leftmost month on show, owned by the form so the pickers can move it. */
+  month: Date
+  onMonthChange: (month: Date) => void
   /** Days belonging to other time off, which a new period may not cover. */
   taken: Set<DateOnly>
 }
 
-const monthIndex = (date: Date) => date.getFullYear() * 12 + date.getMonth()
-
-export function PeriodCalendar({ start, end, onChange, taken }: Props) {
-  const [month, setMonth] = useState(() => toLocalDate(start))
-
-  // Follow the pickers: if the chosen first day is off-screen, scroll to it.
-  useEffect(() => {
-    const target = toLocalDate(start)
-    const first = monthIndex(month)
-    if (monthIndex(target) < first || monthIndex(target) > first + MONTHS_SHOWN - 1) {
-      setMonth(target)
-    }
-  }, [start, month])
-
+export function PeriodCalendar({ start, end, onChange, month, onMonthChange, taken }: Props) {
   return (
     <div className="rounded-xl border border-black/10 p-3 dark:border-white/15">
       <DayPicker
@@ -36,9 +23,9 @@ export function PeriodCalendar({ start, end, onChange, taken }: Props) {
         required
         ISOWeek
         excludeDisabled
-        numberOfMonths={MONTHS_SHOWN}
+        numberOfMonths={2}
         month={month}
-        onMonthChange={setMonth}
+        onMonthChange={onMonthChange}
         selected={{ from: toLocalDate(start), to: toLocalDate(end) }}
         disabled={(date: Date) => taken.has(fromLocalDate(date))}
         onSelect={(range) => {

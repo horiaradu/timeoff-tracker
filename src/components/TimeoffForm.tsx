@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useActionState, useState } from 'react'
 import type { FormState } from '@/actions/state'
-import { isDateOnly, type DateOnly } from '@/lib/dates'
+import { isDateOnly, toLocalDate, type DateOnly } from '@/lib/dates'
 import { balanceFor, bookedDays, type Period } from '@/lib/validation'
 import { chargesByYear, holidaysInRange, workingDays } from '@/lib/workdays'
 import { DateField } from './DateField'
@@ -31,6 +31,7 @@ export function TimeoffForm({
   const [start, setStart] = useState(initial.startDate)
   const [end, setEnd] = useState(initial.endDate)
   const [requestDate, setRequestDate] = useState(initial.requestDate)
+  const [month, setMonth] = useState(() => toLocalDate(initial.startDate))
 
   const others = existing.filter((period) => period.id !== initial.id)
   const taken = bookedDays(others)
@@ -49,6 +50,7 @@ export function TimeoffForm({
           onChange={(picked) => {
             setStart(picked)
             if (picked > end) setEnd(picked)
+            setMonth(toLocalDate(picked))
           }}
         />
         <DateField
@@ -57,7 +59,10 @@ export function TimeoffForm({
           value={end}
           min={start}
           unavailable={taken}
-          onChange={setEnd}
+          onChange={(picked) => {
+            setEnd(picked)
+            setMonth(toLocalDate(picked))
+          }}
         />
       </div>
 
@@ -65,6 +70,8 @@ export function TimeoffForm({
         start={start}
         end={end}
         taken={taken}
+        month={month}
+        onMonthChange={setMonth}
         onChange={(from, to) => {
           setStart(from)
           setEnd(to)
