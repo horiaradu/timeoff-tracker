@@ -63,7 +63,7 @@ async function mirrorToCalendar(
   ])
 
   if (!refreshToken) {
-    return 'Saved, but sign out and in again to let the app manage your calendar.'
+    return 'Saved, but Google access is needed in Settings before the calendar can be updated.'
   }
   if (!profile) {
     return 'Saved, but your name is needed in Settings before it can go on the team calendar.'

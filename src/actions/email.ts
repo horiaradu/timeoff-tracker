@@ -37,7 +37,7 @@ export async function emailRequest(_state: SendState, formData: FormData): Promi
     return { error: 'Add your details and signature in Settings first.' }
   }
   if (!refreshToken) {
-    return { error: 'Sign out and in again to let the app send mail from your account.' }
+    return { error: 'Grant Google access in Settings so the app can send mail as you.' }
   }
 
   const period = formatPeriod(timeoff.startDate, timeoff.endDate)

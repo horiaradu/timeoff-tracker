@@ -16,7 +16,7 @@ export async function accessTokenFrom(refreshToken: string): Promise<string> {
   })
 
   if (!response.ok) {
-    throw new GoogleError('Google would not renew the permission. Sign out and in again.')
+    throw new GoogleError('Google access has lapsed. Grant it again in Settings.')
   }
 
   const { access_token: accessToken } = (await response.json()) as { access_token?: string }
