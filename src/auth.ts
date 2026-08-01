@@ -11,12 +11,26 @@ function isCompanyAccount(profile: Profile | undefined): boolean {
   return profile?.email_verified === true && email?.endsWith(`@${COMPANY_DOMAIN}`) === true
 }
 
-/** Creates the user on first sign-in and keeps their display name current. */
-async function rememberUser(email: string, name: string | null): Promise<string> {
+/** Permission to send the leave request from the signed-in user's own mailbox. */
+const GMAIL_SEND = 'https://www.googleapis.com/auth/gmail.send'
+
+/**
+ * Creates the user on first sign-in and keeps their display name current.
+ * Google only returns a refresh token when it feels like it, so an absent one
+ * must never wipe the token already stored.
+ */
+async function rememberUser(
+  email: string,
+  name: string | null,
+  refreshToken: string | null
+): Promise<string> {
   const [row] = await db()
     .insert(users)
-    .values({ email, name })
-    .onConflictDoUpdate({ target: users.email, set: { name } })
+    .values({ email, name, googleRefreshToken: refreshToken })
+    .onConflictDoUpdate({
+      target: users.email,
+      set: { name, ...(refreshToken ? { googleRefreshToken: refreshToken } : {}) },
+    })
     .returning({ id: users.id })
 
   if (row) return row.id
@@ -28,8 +42,16 @@ async function rememberUser(email: string, name: string | null): Promise<string>
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Google({
-      // A hint that pre-filters the Google account chooser. The signIn callback is what enforces it.
-      authorization: { params: { hd: COMPANY_DOMAIN, prompt: 'select_account' } },
+      authorization: {
+        params: {
+          // A hint that pre-filters the account chooser. The signIn callback is what enforces it.
+          hd: COMPANY_DOMAIN,
+          scope: `openid email profile ${GMAIL_SEND}`,
+          // Asking for consent every time is what makes Google hand back a refresh token.
+          access_type: 'offline',
+          prompt: 'select_account consent',
+        },
+      },
     }),
   ],
   pages: { signIn: '/login', error: '/login' },
@@ -38,10 +60,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn({ profile }) {
       return isCompanyAccount(profile) || '/login?error=domain'
     },
-    async jwt({ token, trigger, profile }) {
+    async jwt({ token, trigger, profile, account }) {
       const email = profile?.email?.toLowerCase()
       if (trigger === 'signIn' && profile && email && isCompanyAccount(profile)) {
-        token.userId = await rememberUser(email, profile.name ?? null)
+        token.userId = await rememberUser(
+          email,
+          profile.name ?? null,
+          account?.refresh_token ?? null
+        )
         token.email = email
       }
       return token

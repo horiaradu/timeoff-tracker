@@ -10,7 +10,7 @@ import {
   View,
   renderToBuffer,
 } from '@react-pdf/renderer'
-import { formatRomanian, type DateOnly } from '@/lib/dates'
+import { formatPeriod, formatRomanian, type DateOnly } from '@/lib/dates'
 
 /**
  * Caladea is metric-compatible with the Cambria used by the paper template.
@@ -56,11 +56,6 @@ export type LeaveRequestProps = {
   timeoff: LeaveRequestPeriod
 }
 
-/** A single day when the leave starts and ends on the same date. */
-function period(start: DateOnly, end: DateOnly): string {
-  return start === end ? formatRomanian(start) : `${formatRomanian(start)} - ${formatRomanian(end)}`
-}
-
 /**
  * Built as one string on purpose: separate text children are laid out as
  * separate words, which lets a line break fall between a value and the comma
@@ -72,7 +67,7 @@ function sentence(profile: LeaveRequestProfile, timeoff: LeaveRequestPeriod): st
     `numarul ${profile.ciNumber}, CNP ${profile.cnp}, ` +
     `domiciliat in localitatea ${profile.city}, angajat al SC SMILECLOUD SRL ` +
     `in functia de ${profile.jobTitle} solicit concediu de odihna in data/perioada de ` +
-    period(timeoff.startDate, timeoff.endDate)
+    formatPeriod(timeoff.startDate, timeoff.endDate)
   )
 }
 

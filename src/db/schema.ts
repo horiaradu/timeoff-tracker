@@ -15,6 +15,8 @@ export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
   email: text('email').notNull().unique(),
   name: text('name'),
+  /** Lets the app send the request from the user's own mailbox. */
+  googleRefreshToken: text('google_refresh_token'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 })
 
@@ -31,6 +33,8 @@ export const profiles = pgTable('profiles', {
   jobTitle: text('job_title').notNull(),
   /** PNG data URL drawn on the settings page; absent until the user signs once. */
   signaturePng: text('signature_png'),
+  /** Whoever the request was last emailed to, offered again next time. */
+  lastRecipient: text('last_recipient'),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })
 

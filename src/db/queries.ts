@@ -4,6 +4,7 @@ import {
   allowances,
   profiles,
   timeoffs,
+  users,
   type Allowance,
   type Profile,
   type Timeoff,
@@ -12,6 +13,15 @@ import {
 export async function findProfile(userId: string): Promise<Profile | undefined> {
   const [profile] = await db().select().from(profiles).where(eq(profiles.userId, userId))
   return profile
+}
+
+/** Absent when the user signed in before the app asked to send mail on their behalf. */
+export async function findGoogleRefreshToken(userId: string): Promise<string | null> {
+  const [row] = await db()
+    .select({ token: users.googleRefreshToken })
+    .from(users)
+    .where(eq(users.id, userId))
+  return row?.token ?? null
 }
 
 export async function listTimeoffs(userId: string): Promise<Timeoff[]> {

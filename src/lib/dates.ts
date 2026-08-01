@@ -96,3 +96,8 @@ export function formatRomanian(date: DateOnly): string {
   const [y, m, d] = date.split('-')
   return `${d}.${m}.${y}`
 }
+
+/** One date when the leave starts and ends on the same day, otherwise a range. */
+export function formatPeriod(start: DateOnly, end: DateOnly): string {
+  return start === end ? formatRomanian(start) : `${formatRomanian(start)} - ${formatRomanian(end)}`
+}

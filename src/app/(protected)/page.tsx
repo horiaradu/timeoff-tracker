@@ -1,8 +1,9 @@
 import Link from 'next/link'
 import { DeleteTimeoffButton } from '@/components/DeleteTimeoffButton'
+import { EmailRequestButton } from '@/components/EmailRequestButton'
 import { allowancesByYear, findProfile, listTimeoffs } from '@/db/queries'
 import type { Timeoff } from '@/db/schema'
-import { formatRomanian, today, year as yearOf } from '@/lib/dates'
+import { formatPeriod, formatRomanian, today, year as yearOf } from '@/lib/dates'
 import { requireUserId } from '@/lib/session'
 import { balanceFor } from '@/lib/validation'
 
@@ -98,12 +99,19 @@ export default async function DashboardPage() {
                     </div>
                     <div className="ml-auto flex items-center gap-3 text-sm">
                       {canPrint && (
-                        <a
-                          href={`/api/timeoffs/${timeoff.id}/pdf`}
-                          className="rounded-lg border border-black/15 px-3 py-1.5 transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
-                        >
-                          Download PDF
-                        </a>
+                        <>
+                          <a
+                            href={`/api/timeoffs/${timeoff.id}/pdf`}
+                            className="rounded-lg border border-black/15 px-3 py-1.5 transition-colors hover:bg-black/5 dark:border-white/20 dark:hover:bg-white/10"
+                          >
+                            Download PDF
+                          </a>
+                          <EmailRequestButton
+                            id={timeoff.id}
+                            period={formatPeriod(timeoff.startDate, timeoff.endDate)}
+                            lastRecipient={profile?.lastRecipient ?? null}
+                          />
+                        </>
                       )}
                       <Link
                         href={`/timeoffs/${timeoff.id}/edit`}
