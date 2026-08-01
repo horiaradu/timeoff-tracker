@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { checkRequest, remainingIn, usedByYear, type Period } from './validation'
+import { balanceFor, checkRequest, usedByYear, type Period } from './validation'
 
 const allowances = new Map([[2026, 21]])
 
@@ -25,13 +25,23 @@ describe('usedByYear', () => {
   })
 })
 
-describe('remainingIn', () => {
+describe('balanceFor', () => {
   it('subtracts booked days from the allowance', () => {
-    expect(remainingIn(2026, [booked('a', '2026-03-16', '2026-03-20')], allowances)).toBe(16)
+    expect(balanceFor(2026, [booked('a', '2026-03-16', '2026-03-20')], allowances)).toStrictEqual({
+      year: 2026,
+      used: 5,
+      granted: 21,
+      remaining: 16,
+    })
   })
 
-  it('is null when no allowance is set for the year', () => {
-    expect(remainingIn(2027, [], allowances)).toBeNull()
+  it('reports no allowance set for the year', () => {
+    expect(balanceFor(2027, [], allowances)).toStrictEqual({
+      year: 2027,
+      used: 0,
+      granted: null,
+      remaining: null,
+    })
   })
 })
 

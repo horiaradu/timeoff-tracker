@@ -64,6 +64,10 @@ export function eachDay(start: DateOnly, end: DateOnly): DateOnly[] {
   return days
 }
 
+export function daysInMonth(year: number, month: number): number {
+  return new Date(Date.UTC(year, month, 0)).getUTCDate()
+}
+
 export function makeDate(year: number, month: number, day: number): DateOnly {
   const padded = (value: number) => String(value).padStart(2, '0')
   return `${String(year).padStart(4, '0')}-${padded(month)}-${padded(day)}`

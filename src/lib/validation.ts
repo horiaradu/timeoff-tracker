@@ -32,14 +32,22 @@ export function usedByYear(periods: Period[]): Map<number, number> {
   return used
 }
 
-export function remainingIn(
+export type Balance = {
+  year: number
+  used: number
+  /** Null when the user has not set an allowance for that year yet. */
+  granted: number | null
+  remaining: number | null
+}
+
+export function balanceFor(
   year: number,
   periods: Period[],
   allowances: Map<number, number>
-): number | null {
-  const granted = allowances.get(year)
-  if (granted === undefined) return null
-  return granted - (usedByYear(periods).get(year) ?? 0)
+): Balance {
+  const used = usedByYear(periods).get(year) ?? 0
+  const granted = allowances.get(year) ?? null
+  return { year, used, granted, remaining: granted === null ? null : granted - used }
 }
 
 function overlapping(request: Request): Period | undefined {
