@@ -21,41 +21,7 @@ export default async function SettingsPage() {
 
   return (
     <div className="space-y-12">
-      <section className="space-y-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
-          <p className="text-muted mt-1 text-sm">
-            These details are printed on every leave request you download.
-          </p>
-        </div>
-        <ProfileForm profile={profile} />
-      </section>
-
-      <section className="space-y-4">
-        <div>
-          <h2 className="text-lg font-semibold tracking-tight">Vacation days</h2>
-          <p className="text-muted mt-1 text-sm">How many days you are entitled to each year.</p>
-        </div>
-
-        <div className="space-y-4">
-          {allowances.map((allowance) => {
-            const balance = balanceFor(allowance.year, timeoffs, granted, currentYear)
-            return (
-              <div key={allowance.id} className="flex flex-wrap items-end gap-4">
-                <AllowanceForm year={allowance.year} days={allowance.days} />
-                <span className="text-muted pb-2 text-sm">
-                  {balance.carriedOver > 0 && `+${balance.carriedOver} carried over · `}
-                  {balance.used} used · {balance.remaining} left
-                </span>
-              </div>
-            )
-          })}
-
-          <div className="border-line border-t pt-4">
-            <AllowanceForm year={Math.max(highest + 1, currentYear)} editableYear />
-          </div>
-        </div>
-      </section>
+      <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
 
       <section className="space-y-4">
         <div>
@@ -89,6 +55,42 @@ export default async function SettingsPage() {
               {googleToken ? 'Grant again' : 'Grant permission'}
             </button>
           </form>
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-lg font-semibold tracking-tight">Your details</h2>
+          <p className="text-muted mt-1 text-sm">
+            These are printed on every leave request you download.
+          </p>
+        </div>
+        <ProfileForm profile={profile} />
+      </section>
+
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-lg font-semibold tracking-tight">Vacation days</h2>
+          <p className="text-muted mt-1 text-sm">How many days you are entitled to each year.</p>
+        </div>
+
+        <div className="space-y-4">
+          {allowances.map((allowance) => {
+            const balance = balanceFor(allowance.year, timeoffs, granted, currentYear)
+            return (
+              <div key={allowance.id} className="flex flex-wrap items-end gap-4">
+                <AllowanceForm year={allowance.year} days={allowance.days} />
+                <span className="text-muted pb-2 text-sm">
+                  {balance.carriedOver > 0 && `+${balance.carriedOver} carried over · `}
+                  {balance.used} used · {balance.remaining} left
+                </span>
+              </div>
+            )
+          })}
+
+          <div className="border-line border-t pt-4">
+            <AllowanceForm year={Math.max(highest + 1, currentYear)} editableYear />
+          </div>
         </div>
       </section>
     </div>
