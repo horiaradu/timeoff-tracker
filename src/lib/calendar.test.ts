@@ -20,7 +20,14 @@ describe('outOfOffice', () => {
     const event = outOfOffice({ startDate: '2026-04-17', endDate: '2026-04-20' })
     expect(event.eventType).toBe('outOfOffice')
     expect(event.transparency).toBe('opaque')
-    expect(event.outOfOfficeProperties.autoDeclineMode).toBe('declineNone')
+  })
+
+  it('turns down conflicting meetings with a reason naming the period', () => {
+    const event = outOfOffice({ startDate: '2026-04-17', endDate: '2026-04-20' })
+    expect(event.outOfOfficeProperties.autoDeclineMode).toBe('declineAllConflictingInvitations')
+    expect(event.outOfOfficeProperties.declineMessage).toBe(
+      'Sunt in concediu de odihna 17.04.2026 - 20.04.2026.'
+    )
   })
 
   it('crosses a month boundary correctly', () => {

@@ -34,7 +34,11 @@ export function outOfOffice(period: Period) {
     summary: 'Concediu de odihna',
     start: { dateTime: `${period.startDate}T00:00:00`, timeZone: TIME_ZONE },
     end: { dateTime: `${addDays(period.endDate, 1)}T00:00:00`, timeZone: TIME_ZONE },
-    outOfOfficeProperties: { autoDeclineMode: 'declineNone' },
+    outOfOfficeProperties: {
+      // Turns down meetings already accepted in the period as well as new ones.
+      autoDeclineMode: 'declineAllConflictingInvitations',
+      declineMessage: `Sunt in concediu de odihna ${formatRomanian(period.startDate)} - ${formatRomanian(period.endDate)}.`,
+    },
   }
 }
 
