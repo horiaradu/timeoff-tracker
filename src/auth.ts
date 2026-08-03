@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm'
 import NextAuth, { type Profile } from 'next-auth'
 import Google from 'next-auth/providers/google'
 import { db } from '@/db'
+import { encrypt } from '@/lib/crypto'
 import { users } from '@/db/schema'
 
 export const COMPANY_DOMAIN = 'smilecloud.com'
@@ -25,12 +26,14 @@ async function rememberUser(
   name: string | null,
   refreshToken: string | null
 ): Promise<string> {
+  const stored = refreshToken ? encrypt(refreshToken) : null
+
   const [row] = await db()
     .insert(users)
-    .values({ email, name, googleRefreshToken: refreshToken })
+    .values({ email, name, googleRefreshToken: stored })
     .onConflictDoUpdate({
       target: users.email,
-      set: { name, ...(refreshToken ? { googleRefreshToken: refreshToken } : {}) },
+      set: { name, ...(stored ? { googleRefreshToken: stored } : {}) },
     })
     .returning({ id: users.id })
 

@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { db } from '@/db'
 import { findGoogleRefreshToken, findProfile, findTimeoff } from '@/db/queries'
 import { profiles } from '@/db/schema'
+import { encrypt } from '@/lib/crypto'
 import { formatPeriod } from '@/lib/dates'
 import { sendMail } from '@/lib/gmail'
 import { GoogleError } from '@/lib/google'
@@ -77,7 +78,7 @@ export async function emailRequest(_state: SendState, formData: FormData): Promi
 
   await db()
     .update(profiles)
-    .set({ lastRecipient: parsed.data.to })
+    .set({ lastRecipient: encrypt(parsed.data.to) })
     .where(eq(profiles.userId, userId))
 
   revalidatePath('/')

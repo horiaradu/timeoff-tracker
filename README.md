@@ -33,6 +33,8 @@ npm run dev
 | `AUTH_GOOGLE_ID`     | Google Cloud console, OAuth client (see below)                                           |
 | `AUTH_GOOGLE_SECRET` | same OAuth client                                                                        |
 
+| `FIELD_ENCRYPTION_KEY` | `openssl rand -base64 32`. **Required** — saving a profile or an allowance fails without it. Lose it and the encrypted data is unrecoverable. |
+
 Error reporting is optional and off until a DSN is given:
 
 | Variable                 | Where it comes from                                                                  |
@@ -70,6 +72,30 @@ more than sign-in alone:
   app stores on a fresh consent, and without it these features report that and do nothing.
 
 The team calendar is identified in `src/lib/calendar.ts`.
+
+### Encrypted fields
+
+Identity details and day counts are encrypted with AES-256-GCM before they reach the
+database, so a dump, a backup or the Neon browser shows only ciphertext. Encrypted:
+`profiles.full_name`, `ci_series`, `ci_number`, `cnp`, `city`, `job_title`, `signature_png`,
+`last_recipient`, `allowances.days`, and `users.google_refresh_token`.
+
+The app holds the key, so it can still read everything at request time — this protects
+against the database leaking, not against whoever controls the deployment.
+
+Because `days` is encrypted it is stored as text and its range is checked in the app
+instead of by a database constraint. Nothing sorts or filters on an encrypted column;
+balances are all computed in JavaScript.
+
+`decrypt` returns anything not in its `v1:` format untouched, which is what lets rows
+written before encryption keep working. To encrypt what is already stored:
+
+```bash
+npx tsx scripts/encrypt-existing.ts           # dry run, lists what would change
+npx tsx scripts/encrypt-existing.ts --apply
+```
+
+It is safe to run repeatedly: a value already encrypted is skipped.
 
 ### Monitoring
 

@@ -47,12 +47,12 @@ export const allowances = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     year: integer('year').notNull(),
-    days: integer('days').notNull(),
+    /** Encrypted, so the range is enforced in the app rather than by the database. */
+    days: text('days').notNull(),
   },
   (table) => [
     unique('allowances_user_year').on(table.userId, table.year),
     check('allowances_year_range', sql`${table.year} between 2000 and 2100`),
-    check('allowances_days_range', sql`${table.days} between 0 and 365`),
   ]
 )
 
