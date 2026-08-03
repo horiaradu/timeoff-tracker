@@ -33,6 +33,15 @@ npm run dev
 | `AUTH_GOOGLE_ID`     | Google Cloud console, OAuth client (see below)                                           |
 | `AUTH_GOOGLE_SECRET` | same OAuth client                                                                        |
 
+Error reporting is optional and off until a DSN is given:
+
+| Variable                 | Where it comes from                                                    |
+| ------------------------ | ---------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SENTRY_DSN` | Sentry project → Client Keys. Empty switches reporting off entirely.   |
+| `SENTRY_ORG`             | Sentry organisation slug. Only needed to upload source maps at build.  |
+| `SENTRY_PROJECT`         | Sentry project slug, same.                                             |
+| `SENTRY_AUTH_TOKEN`      | Sentry → Auth Tokens, scope `project:releases`. Set it on Vercel only. |
+
 ### Google OAuth client
 
 Google Cloud console → APIs & Services → Credentials → Create OAuth client ID → Web
@@ -58,6 +67,15 @@ more than sign-in alone:
   app stores on a fresh consent, and without it these features report that and do nothing.
 
 The team calendar is identified in `src/lib/calendar.ts`.
+
+### Monitoring
+
+Vercel Analytics needs turning on in the project's **Analytics** tab; it only records on
+deployed pages, never on localhost. Sentry reports server and browser errors once
+`NEXT_PUBLIC_SENTRY_DSN` is set, and stays completely inert without it. Neither collects
+personal data: `sendDefaultPii` is off and session replay is deliberately not enabled, so
+signatures and ID details never leave the app. Browser reports go through `/monitoring`,
+a tunnel that keeps ad blockers from silently dropping them.
 
 > If port 3000 is taken, run `npx next dev -p 3100` and register that port's origin and
 > callback URL in the OAuth client as well — the callback URL must match exactly.

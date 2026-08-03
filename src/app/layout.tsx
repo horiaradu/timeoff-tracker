@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/next'
 import type { Metadata } from 'next'
 import { Geist } from 'next/font/google'
 import Script from 'next/script'
@@ -38,6 +39,7 @@ export default function RootLayout({
           {applyTheme}
         </Script>
         {children}
+        <Analytics />
       </body>
     </html>
   )
