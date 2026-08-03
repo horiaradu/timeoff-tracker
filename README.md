@@ -35,12 +35,15 @@ npm run dev
 
 Error reporting is optional and off until a DSN is given:
 
-| Variable                 | Where it comes from                                                    |
-| ------------------------ | ---------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SENTRY_DSN` | Sentry project → Client Keys. Empty switches reporting off entirely.   |
-| `SENTRY_ORG`             | Sentry organisation slug. Only needed to upload source maps at build.  |
-| `SENTRY_PROJECT`         | Sentry project slug, same.                                             |
-| `SENTRY_AUTH_TOKEN`      | Sentry → Auth Tokens, scope `project:releases`. Set it on Vercel only. |
+| Variable                 | Where it comes from                                                                  |
+| ------------------------ | ------------------------------------------------------------------------------------ |
+| `NEXT_PUBLIC_SENTRY_DSN` | Sentry project → Client Keys. Empty switches reporting off entirely.                 |
+| `SENTRY_ORG`             | Sentry organisation slug. Only needed to upload source maps at build.                |
+| `SENTRY_PROJECT`         | Sentry project slug, same.                                                           |
+| `SENTRY_AUTH_TOKEN`      | Sentry → Settings → Developer Settings → Organization Tokens. Set it on Vercel only. |
+
+The Sentry integration at `vercel.com/integrations/sentry` sets all four of these on the
+Vercel project by itself, which is the least work and keeps the token out of your hands.
 
 ### Google OAuth client
 
