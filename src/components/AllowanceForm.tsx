@@ -21,7 +21,13 @@ export function AllowanceForm({ year, days, editableYear = false }: Props) {
       <label>
         <span className="text-muted mb-1.5 block text-xs font-medium">Year</span>
         {editableYear ? (
-          <input type="number" name="year" required defaultValue={year} className={field} />
+          <input
+            type="number"
+            name="year"
+            required
+            defaultValue={state.values?.year ?? year}
+            className={field}
+          />
         ) : (
           <>
             <input type="hidden" name="year" value={year} />
@@ -38,7 +44,7 @@ export function AllowanceForm({ year, days, editableYear = false }: Props) {
           required
           min={0}
           max={365}
-          defaultValue={days ?? 21}
+          defaultValue={state.values?.days ?? days ?? 21}
           className={field}
         />
       </label>
