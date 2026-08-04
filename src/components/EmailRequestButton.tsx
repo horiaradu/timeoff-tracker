@@ -58,7 +58,7 @@ export function EmailRequestButton({ id, period, lastRecipient }: Props) {
           <p className="text-sm font-medium">Send the request</p>
           <p className="text-muted mt-1 text-xs">
             Subject &ldquo;Cerere concediu {period}&rdquo;, sent from your own address with the PDF
-            attached.
+            attached and you in Cc.
           </p>
 
           <form action={submit} className="mt-3 space-y-2">

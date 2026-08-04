@@ -11,6 +11,7 @@ export type Attachment = {
 
 export type Mail = {
   to: string
+  cc?: string
   subject: string
   text: string
   attachment: Attachment
@@ -29,6 +30,7 @@ export function mimeMessage(mail: Mail): string {
 
   return [
     `To: ${mail.to}`,
+    ...(mail.cc ? [`Cc: ${mail.cc}`] : []),
     `Subject: ${encodeHeader(mail.subject)}`,
     'MIME-Version: 1.0',
     `Content-Type: multipart/mixed; boundary="${boundary}"`,

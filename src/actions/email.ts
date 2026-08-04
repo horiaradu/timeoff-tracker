@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { db } from '@/db'
-import { findGoogleRefreshToken, findProfile, findTimeoff } from '@/db/queries'
+import { findGoogleRefreshToken, findProfile, findTimeoff, findUserEmail } from '@/db/queries'
 import { profiles } from '@/db/schema'
 import { encrypt } from '@/lib/crypto'
 import { formatPeriod } from '@/lib/dates'
@@ -27,10 +27,11 @@ export async function emailRequest(_state: SendState, formData: FormData): Promi
   const parsed = schema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)
 
-  const [timeoff, profile, refreshToken] = await Promise.all([
+  const [timeoff, profile, refreshToken, userEmail] = await Promise.all([
     findTimeoff(userId, parsed.data.id),
     findProfile(userId),
     findGoogleRefreshToken(userId),
+    findUserEmail(userId),
   ])
 
   if (!timeoff) return { error: 'That time off no longer exists.' }
@@ -63,6 +64,8 @@ export async function emailRequest(_state: SendState, formData: FormData): Promi
   try {
     await sendMail(refreshToken, {
       to: parsed.data.to,
+      // A copy for the sender's own inbox, unless they are already the recipient.
+      cc: userEmail && userEmail !== parsed.data.to ? userEmail : undefined,
       subject: `Cerere concediu ${period}`,
       text: `Atasat, cererea de concediu de odihna pentru perioada ${period}.`,
       attachment: {

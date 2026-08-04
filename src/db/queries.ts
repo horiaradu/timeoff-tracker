@@ -44,6 +44,11 @@ export async function findGoogleRefreshToken(userId: string): Promise<string | n
   return decryptOptional(row?.token ?? null)
 }
 
+export async function findUserEmail(userId: string): Promise<string | null> {
+  const [row] = await db().select({ email: users.email }).from(users).where(eq(users.id, userId))
+  return row?.email ?? null
+}
+
 export async function listTimeoffs(userId: string): Promise<Timeoff[]> {
   return db()
     .select()
