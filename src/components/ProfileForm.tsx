@@ -29,7 +29,7 @@ export function ProfileForm({ profile }: { profile: Profile | undefined }) {
             <input
               name={entry.name}
               required
-              defaultValue={profile?.[entry.name] ?? ''}
+              defaultValue={state.values?.[entry.name] ?? profile?.[entry.name] ?? ''}
               placeholder={entry.placeholder}
               className={field}
             />

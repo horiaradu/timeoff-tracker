@@ -38,7 +38,11 @@ export async function saveProfile(_state: FormState, formData: FormData): Promis
   const userId = await requireUserId()
 
   const parsed = profileSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return invalid(parsed.error)
+  if (!parsed.success) {
+    // The drawing lives in client state and survives on its own; echoing it back would be dead weight.
+    formData.delete('signaturePng')
+    return invalid(parsed.error, formData)
+  }
 
   const { signaturePng, ...plain } = parsed.data
   // An empty drawing means the user did not touch the pad, so keep the stored one.
@@ -75,7 +79,7 @@ export async function saveAllowance(_state: FormState, formData: FormData): Prom
   const userId = await requireUserId()
 
   const parsed = allowanceSchema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return invalid(parsed.error)
+  if (!parsed.success) return invalid(parsed.error, formData)
 
   const days = encrypt(String(parsed.data.days))
 
