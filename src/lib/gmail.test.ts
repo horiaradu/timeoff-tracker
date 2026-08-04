@@ -20,6 +20,15 @@ describe('mimeMessage', () => {
     expect(message).toContain('Subject: Cerere concediu 17.04.2026 - 20.04.2026')
   })
 
+  it('copies the sender when asked', () => {
+    const message = mimeMessage(mail({ cc: 'eu@smilecloud.com' }))
+    expect(message).toContain('Cc: eu@smilecloud.com')
+  })
+
+  it('leaves the Cc header out when nobody is copied', () => {
+    expect(mimeMessage(mail())).not.toContain('Cc:')
+  })
+
   it('encodes a subject carrying diacritics', () => {
     const message = mimeMessage(mail({ subject: 'Cerere concediu în mai' }))
     expect(message).not.toContain('Cerere concediu în mai')
