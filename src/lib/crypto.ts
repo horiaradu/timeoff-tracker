@@ -1,21 +1,32 @@
-import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto'
+import {
+  createCipheriv,
+  createDecipheriv,
+  createSecretKey,
+  randomBytes,
+  type KeyObject,
+} from 'node:crypto'
 
 const VERSION = 'v1'
 const ALGORITHM = 'aes-256-gcm'
 const IV_BYTES = 12
 const KEY_BYTES = 32
 
-function key(): Buffer {
+let cachedKey: { raw: string; key: KeyObject } | null = null
+
+function key(): KeyObject {
   const raw = process.env.FIELD_ENCRYPTION_KEY
   if (!raw) {
     throw new Error('FIELD_ENCRYPTION_KEY is not set. Generate one with: openssl rand -base64 32')
   }
+  // Prepared once: Node re-validates a key given as raw bytes on every encrypt and decrypt.
+  if (cachedKey?.raw === raw) return cachedKey.key
 
   const bytes = Buffer.from(raw, 'base64')
   if (bytes.length !== KEY_BYTES) {
     throw new Error(`FIELD_ENCRYPTION_KEY must decode to ${KEY_BYTES} bytes, got ${bytes.length}.`)
   }
-  return bytes
+  cachedKey = { raw, key: createSecretKey(bytes) }
+  return cachedKey.key
 }
 
 /**
