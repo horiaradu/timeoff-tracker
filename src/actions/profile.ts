@@ -5,11 +5,25 @@ import { z } from 'zod'
 import { db } from '@/db'
 import { encrypt } from '@/lib/crypto'
 import { allowances, profiles } from '@/db/schema'
+import { PNG_DATA_URL_PREFIX, pngSize } from '@/lib/png'
 import { requireUserId } from '@/lib/session'
 import { invalid, type FormState } from './state'
 
 /** Comfortably fits a signature drawn on the settings page, without bloating the row. */
 const SIGNATURE_LIMIT = 200_000
+
+/**
+ * Larger than any drawing the signature pad produces (600×200 at up to 2× pixel
+ * density). A tiny file can declare a huge image, which would slow every PDF render.
+ */
+const SIGNATURE_MAX_WIDTH = 2000
+const SIGNATURE_MAX_HEIGHT = 1000
+
+function isSignatureDrawing(value: string): boolean {
+  if (value === '') return true
+  const size = pngSize(value)
+  return size !== null && size.width <= SIGNATURE_MAX_WIDTH && size.height <= SIGNATURE_MAX_HEIGHT
+}
 
 const trimmed = (max: number) => z.string().trim().min(1, 'Required.').max(max, 'Too long.')
 
@@ -27,9 +41,10 @@ const profileSchema = z.object({
     .string()
     .max(SIGNATURE_LIMIT, 'The signature drawing is too large.')
     .refine(
-      (value) => value === '' || value.startsWith('data:image/png;base64,'),
+      (value) => value === '' || value.startsWith(PNG_DATA_URL_PREFIX),
       'The signature must be a PNG drawing.'
     )
+    .refine(isSignatureDrawing, 'The signature drawing is too large.')
     .optional()
     .default(''),
 })

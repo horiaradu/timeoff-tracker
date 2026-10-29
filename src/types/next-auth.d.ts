@@ -12,5 +12,7 @@ declare module '@auth/core/types' {
 declare module '@auth/core/jwt' {
   interface JWT {
     userId?: string
+    /** When the user last signed in with Google, in milliseconds since the epoch. */
+    signedInAt?: number
   }
 }

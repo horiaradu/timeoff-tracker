@@ -4,7 +4,13 @@ import { eq } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { db } from '@/db'
-import { findGoogleRefreshToken, findProfile, findTimeoff, findUserEmail } from '@/db/queries'
+import {
+  findGoogleRefreshToken,
+  findProfile,
+  findTimeoff,
+  findUserEmail,
+  timeoffId,
+} from '@/db/queries'
 import { profiles } from '@/db/schema'
 import { encrypt } from '@/lib/crypto'
 import { formatPeriod } from '@/lib/dates'
@@ -16,7 +22,7 @@ import { renderLeaveRequest } from '@/pdf/LeaveRequest'
 import { invalid, type FormState } from './state'
 
 const schema = z.object({
-  id: z.string().uuid('Unknown time off.'),
+  id: timeoffId,
   to: z.string().trim().toLowerCase().email('Enter a valid email address.'),
 })
 

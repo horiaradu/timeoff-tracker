@@ -11,6 +11,7 @@ import {
   findProfile,
   findTimeoff,
   listTimeoffs,
+  timeoffId,
 } from '@/db/queries'
 import { timeoffs } from '@/db/schema'
 import { removePeriod, syncPeriod, type EventIds, type Period } from '@/lib/calendar'
@@ -109,8 +110,9 @@ export async function createTimeoff(_state: FormState, formData: FormData): Prom
 export async function updateTimeoff(_state: FormState, formData: FormData): Promise<FormState> {
   const userId = await requireUserId()
 
-  const id = formData.get('id')
-  if (typeof id !== 'string') return { error: 'Unknown time off.' }
+  const parsedId = timeoffId.safeParse(formData.get('id'))
+  if (!parsedId.success) return { error: 'Unknown time off.' }
+  const id = parsedId.data
 
   const parsed = periodSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return invalid(parsed.error)

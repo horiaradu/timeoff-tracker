@@ -1,4 +1,5 @@
 import { and, asc, desc, eq } from 'drizzle-orm'
+import { z } from 'zod'
 import { db } from '@/db'
 import { decrypt, decryptOptional } from '@/lib/crypto'
 import { allowances, profiles, timeoffs, users, type Profile, type Timeoff } from './schema'
@@ -57,7 +58,11 @@ export async function listTimeoffs(userId: string): Promise<Timeoff[]> {
     .orderBy(desc(timeoffs.startDate))
 }
 
+/** Ids are UUIDs; anything else would make Postgres throw, so it is simply not found. */
+export const timeoffId = z.string().uuid('Unknown time off.')
+
 export async function findTimeoff(userId: string, id: string): Promise<Timeoff | undefined> {
+  if (!timeoffId.safeParse(id).success) return undefined
   const [timeoff] = await db()
     .select()
     .from(timeoffs)

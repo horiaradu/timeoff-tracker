@@ -12,6 +12,12 @@ function isCompanyAccount(profile: Profile | undefined): boolean {
   return profile?.email_verified === true && email?.endsWith(`@${COMPANY_DOMAIN}`) === true
 }
 
+/**
+ * How long one sign-in lasts, however often the app is used. Signing in again goes
+ * through Google, so someone who left the company loses access within this time.
+ */
+const SIGN_IN_LIFETIME_MS = 7 * 24 * 60 * 60 * 1000
+
 /** Sending the request from the user's own mailbox, and keeping their calendar in step. */
 const GMAIL_SEND = 'https://www.googleapis.com/auth/gmail.send'
 const CALENDAR_EVENTS = 'https://www.googleapis.com/auth/calendar.events'
@@ -74,7 +80,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           account?.refresh_token ?? null
         )
         token.email = email
+        token.signedInAt = Date.now()
       }
+      // Returning null ends the session, which sends the user back to sign in.
+      if (!token.signedInAt || Date.now() - token.signedInAt > SIGN_IN_LIFETIME_MS) return null
       return token
     },
     session({ session, token }) {
