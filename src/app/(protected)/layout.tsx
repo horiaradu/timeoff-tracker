@@ -36,6 +36,8 @@ export default async function ProtectedLayout({ children }: { children: React.Re
                   alt=""
                   width={24}
                   height={24}
+                  // A 24px Google profile picture gains nothing from resizing.
+                  unoptimized
                   className="border-line rounded-full border"
                 />
               )}

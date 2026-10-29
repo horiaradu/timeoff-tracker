@@ -19,6 +19,5 @@ export default auth((request) => {
 })
 
 export const config = {
-  // `monitoring` is Sentry's tunnel: redirecting it would swallow browser error reports.
-  matcher: ['/((?!api/auth|monitoring|_next/static|_next/image|favicon.ico|icon.svg).*)'],
+  matcher: ['/((?!api/auth|_next/static|_next/image|favicon.ico|icon.svg).*)'],
 }

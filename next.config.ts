@@ -6,10 +6,6 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     '/api/timeoffs/[id]/pdf': ['src/pdf/fonts/**/*.ttf'],
   },
-  images: {
-    // Google profile pictures.
-    remotePatterns: [{ protocol: 'https', hostname: 'lh3.googleusercontent.com' }],
-  },
 }
 
 export default withSentryConfig(nextConfig, {
@@ -18,6 +14,4 @@ export default withSentryConfig(nextConfig, {
   // Stack traces only point at real code once the maps are uploaded, which needs a token.
   authToken: process.env.SENTRY_AUTH_TOKEN,
   silent: !process.env.CI,
-  // Lets the browser reach Sentry even where ad blockers stop requests to it directly.
-  tunnelRoute: '/monitoring',
 })

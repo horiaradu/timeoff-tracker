@@ -103,8 +103,8 @@ Vercel Analytics needs turning on in the project's **Analytics** tab; it only re
 deployed pages, never on localhost. Sentry reports server and browser errors once
 `NEXT_PUBLIC_SENTRY_DSN` is set, and stays completely inert without it. Neither collects
 personal data: `sendDefaultPii` is off and session replay is deliberately not enabled, so
-signatures and ID details never leave the app. Browser reports go through `/monitoring`,
-a tunnel that keeps ad blockers from silently dropping them.
+signatures and ID details never leave the app. Browser reports go straight to Sentry, so
+ad blockers may drop some of them. Traces are sampled at 10%.
 
 > If port 3000 is taken, run `npx next dev -p 3100` and register that port's origin and
 > callback URL in the OAuth client as well — the callback URL must match exactly.
