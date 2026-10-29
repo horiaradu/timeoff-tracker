@@ -12,7 +12,7 @@ vi.mock('@/db', () => ({
   }),
 }))
 
-const { allowAction, DAILY_LIMITS } = await import('./usage')
+const { allowAction, DAILY_LIMIT } = await import('./usage')
 
 describe('allowAction', () => {
   beforeEach(() => {
@@ -20,12 +20,12 @@ describe('allowAction', () => {
   })
 
   it('allows the last use within the daily limit', async () => {
-    counted.count = DAILY_LIMITS.email
+    counted.count = DAILY_LIMIT
     expect(await allowAction('user', 'email')).toBe(true)
   })
 
   it('refuses once the daily limit is passed', async () => {
-    counted.count = DAILY_LIMITS.email + 1
+    counted.count = DAILY_LIMIT + 1
     expect(await allowAction('user', 'email')).toBe(false)
   })
 })
