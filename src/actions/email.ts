@@ -11,6 +11,7 @@ import { formatPeriod } from '@/lib/dates'
 import { sendMail } from '@/lib/gmail'
 import { GoogleError } from '@/lib/google'
 import { requireUserId } from '@/lib/session'
+import { allowAction, LIMIT_REACHED } from '@/lib/usage'
 import { renderLeaveRequest } from '@/pdf/LeaveRequest'
 import { invalid, type FormState } from './state'
 
@@ -41,6 +42,7 @@ export async function emailRequest(_state: SendState, formData: FormData): Promi
   if (!refreshToken) {
     return { error: 'Grant Google access in Settings so the app can send mail as you.' }
   }
+  if (!(await allowAction(userId, 'email'))) return { error: LIMIT_REACHED }
 
   const period = formatPeriod(timeoff.startDate, timeoff.endDate)
 

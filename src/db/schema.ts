@@ -5,6 +5,7 @@ import {
   index,
   integer,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   unique,
@@ -79,6 +80,20 @@ export const timeoffs = pgTable(
     index('timeoffs_user_start').on(table.userId, table.startDate),
     check('timeoffs_period_order', sql`${table.startDate} <= ${table.endDate}`),
   ]
+)
+
+/** How many times a user ran a rate-limited action on one day (UTC). */
+export const usageCounters = pgTable(
+  'usage_counters',
+  {
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    action: text('action').notNull(),
+    day: date('day').notNull(),
+    count: integer('count').notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.userId, table.action, table.day] })]
 )
 
 export const usersRelations = relations(users, ({ one, many }) => ({

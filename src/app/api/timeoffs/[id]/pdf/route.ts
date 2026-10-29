@@ -1,5 +1,6 @@
 import { currentUserId } from '@/auth'
 import { findProfile, findTimeoff } from '@/db/queries'
+import { allowAction, LIMIT_REACHED } from '@/lib/usage'
 import { renderLeaveRequest } from '@/pdf/LeaveRequest'
 
 export const runtime = 'nodejs'
@@ -16,6 +17,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   if (!profile?.signaturePng) {
     return new Response('Add your details and signature in Settings first.', { status: 409 })
   }
+  if (!(await allowAction(userId, 'pdf'))) return new Response(LIMIT_REACHED, { status: 429 })
 
   const pdf = await renderLeaveRequest({
     profile: {

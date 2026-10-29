@@ -16,6 +16,7 @@ import { timeoffs } from '@/db/schema'
 import { removePeriod, syncPeriod, type EventIds, type Period } from '@/lib/calendar'
 import { GoogleError } from '@/lib/google'
 import { requireUserId } from '@/lib/session'
+import { allowAction, LIMIT_REACHED } from '@/lib/usage'
 import { checkRequest } from '@/lib/validation'
 import { calendarDate, invalid, type FormState } from './state'
 
@@ -88,6 +89,7 @@ export async function createTimeoff(_state: FormState, formData: FormData): Prom
 
   const check = await reviewPeriod(userId, parsed.data)
   if (!check.ok) return { error: check.message }
+  if (!(await allowAction(userId, 'booking'))) return { error: LIMIT_REACHED }
 
   const [created] = await db()
     .insert(timeoffs)
@@ -115,6 +117,7 @@ export async function updateTimeoff(_state: FormState, formData: FormData): Prom
 
   const check = await reviewPeriod(userId, parsed.data, id)
   if (!check.ok) return { error: check.message }
+  if (!(await allowAction(userId, 'booking'))) return { error: LIMIT_REACHED }
 
   const [updated] = await db()
     .update(timeoffs)
@@ -143,6 +146,8 @@ export async function deleteTimeoff(formData: FormData): Promise<void> {
 
   const timeoff = await findTimeoff(userId, id)
   if (!timeoff) return
+  // Past the daily limit the booking simply stays; a normal day never gets near it.
+  if (!(await allowAction(userId, 'booking'))) return
 
   // Clear the calendar first, while the event ids are still on record.
   const refreshToken = await findGoogleRefreshToken(userId)
